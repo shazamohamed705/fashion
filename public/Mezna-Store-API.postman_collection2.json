@@ -1,0 +1,743 @@
+{
+  "info": {
+    "name": "Mezna Store API",
+    "description": "مجموعة كاملة لجميع APIs متجر Mezna Store.\n\nالمتغيرات:\n- base_url: عنوان السيرفر (للتشغيل المحلي استخدمي http://127.0.0.1:8000)\n- token: استخدمي access_token من تسجيل الدخول في طلبات الإدارة المحمية.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "https://mezna-store.com" },
+    { "key": "token", "value": "" },
+    { "key": "category_id", "value": "" },
+    { "key": "subcategory_id", "value": "" },
+    { "key": "brand_id", "value": "" },
+    { "key": "product_id", "value": "" },
+    { "key": "variant_id", "value": "" },
+    { "key": "banner_id", "value": "" },
+    { "key": "page_key", "value": "shipping" }
+  ],
+  "item": [
+    {
+      "name": "Auth (المصادقة)",
+      "item": [
+        {
+          "name": "Login - تسجيل الدخول",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/login",
+            "description": "يرجع access_token — انسخه إلى المتغير token لاستخدامه في الطلبات المحمية."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.data && body.data.access_token) pm.collectionVariables.set('token', body.data.access_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register - تسجيل مستخدم جديد",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"User\",\n  \"email\": \"user@example.com\",\n  \"password\": \"password\",\n  \"password_confirmation\": \"password\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/register",
+            "description": "يحتاج password_confirmation مطابق لـ password."
+          }
+        },
+        {
+          "name": "Logout - تسجيل الخروج",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{base_url}}/api/auth/logout",
+            "description": "يتطلب مصادقة (Bearer token)."
+          }
+        },
+        {
+          "name": "User - المستخدم الحالي",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/auth/user",
+            "description": "جلب بيانات المستخدم المسجل دخوله. يتطلب مصادقة."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Catalog Setup (إنشاء بيانات الاختبار)",
+      "description": "شغّلي بالترتيب: Login ثم Create Category ثم Create Subcategory ثم Create Brand ثم Create Product. لازم يكون المستخدم admin.",
+      "item": [
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Test Category\",\n  \"is_active\": true,\n  \"hide_price\": false\n}" },
+            "url": "{{base_url}}/api/categories"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.data && body.data.id) pm.collectionVariables.set('category_id', body.data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Subcategories For Category",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/categories/{{category_id}}/subcategories"
+          }
+        },
+        {
+          "name": "Create Subcategory",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Test Subcategory\",\n  \"default_image_source\": \"google_photos\",\n  \"is_active\": true\n}" },
+            "url": "{{base_url}}/api/categories/{{category_id}}/subcategories"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.data && body.data.id) pm.collectionVariables.set('subcategory_id', body.data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Brand",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}"
+              }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Test Brand\",\n  \"is_active\": true,\n  \"subcategory_ids\": [{{subcategory_id}}]\n}" },
+            "url": "{{base_url}}/api/brands"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.data && body.data.id) pm.collectionVariables.set('brand_id', body.data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Brands For Subcategory",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/subcategories/{{subcategory_id}}/brands"
+          }
+        },
+        {
+          "name": "Get Brand Image Source Options",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/brands/{{brand_id}}/image-sources?subcategory_id={{subcategory_id}}",
+            "description": "بعد اختيار Brand، يرجع خياري Web وGoogle Photos وروابط/صور المنتجات التي يديرها Admin ضمن الـSubcategory المختار."
+          }
+        },
+        {
+          "name": "Create Product With Image Sources",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Product\",\n  \"category_id\": {{category_id}},\n  \"subcategory_id\": {{subcategory_id}},\n  \"brand_id\": {{brand_id}},\n  \"image_source\": \"web\",\n  \"price\": 99.99,\n  \"image\": \"https://example.com/product.jpg\",\n  \"google_photo_link\": \"https://photos.google.com/\",\n  \"description\": \"Temporary API test product\",\n  \"is_active\": true\n}"
+            },
+            "url": "{{base_url}}/api/products"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.data && body.data.id) pm.collectionVariables.set('product_id', body.data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Show Product And Image Source Choices",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/products/{{product_id}}",
+            "description": "الاستجابة تحتوي image_sources بخياري Google Photos وWeb وروابطهما."
+          }
+        },
+        {
+          "name": "Add Product Variant",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Test Variant\",\n  \"image\": \"https://example.com/variant.jpg\",\n  \"google_photo_link\": \"https://photos.google.com/\",\n  \"is_active\": true\n}" },
+            "url": "{{base_url}}/api/products/{{product_id}}/variants"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.data && body.data.id) pm.collectionVariables.set('variant_id', body.data.id);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Products (المنتجات)",
+      "item": [
+        {
+          "name": "List Products - قائمة المنتجات",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/products?category_id=&search=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products"],
+              "query": [
+                { "key": "category_id", "value": "", "description": "فلترة حسب القسم" },
+                { "key": "search", "value": "", "description": "بحث في الاسم" }
+              ]
+            },
+            "description": "قائمة منجمة من المنتجات. كل عنصر يتضمن visits_count (عدد المشاهدات)."
+          }
+        },
+        {
+          "name": "Show Product - عرض منتج",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/products/{{product_id}}",
+            "description": "استبدل 1 بمعرف المنتج. يرجع التفاصيل مع القسم والمتغيرات وعدد المشاهدات (visits_count)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories (الأقسام)",
+      "item": [
+        {
+          "name": "List Categories - قائمة الأقسام",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/categories?search=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories"],
+              "query": [
+                { "key": "search", "value": "", "description": "بحث في الاسم" }
+              ]
+            },
+            "description": "قائمة الأقسام. كل قسم يتضمن visits_count و products_count و banners_count. الأقسام التي فيها hide_price لا تعرض سعر المنتجات عند عرض القسم."
+          }
+        },
+        {
+          "name": "Show Category - عرض قسم",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/categories/{{category_id}}",
+            "description": "استبدل 1 بمعرف القسم. يرجع القسم مع المنتجات والبانرات وعدد المشاهدات (visits_count) للقسم ولكل منتج."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Banners (البانرات)",
+      "item": [
+        {
+          "name": "List Banners - قائمة البانرات",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/banners?category_id=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "banners"],
+              "query": [
+                { "key": "category_id", "value": "", "description": "فلترة حسب القسم" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Main Page Banners - بانرات الصفحة الرئيسية",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/banners/main-page",
+            "description": "بانرات بدون ربط بقسم (للصفحة الرئيسية)."
+          }
+        },
+        {
+          "name": "Show Banner - عرض بانر",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/banners/{{banner_id}}",
+            "description": "استبدل 1 بمعرف البانر."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Page Contents (محتوى الصفحات + SEO)",
+      "item": [
+        {
+          "name": "Get All - جلب كل المحتوى",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/page-contents?keys=shipping,returns,faq,meta_pixel_id,home",
+              "host": ["{{base_url}}"],
+              "path": ["api", "page-contents"],
+              "query": [
+                { "key": "keys", "value": "shipping,returns,faq,meta_pixel_id,home", "description": "مفاتيح مفصولة بفاصلة" }
+              ]
+            },
+            "description": "يرجع لكل مفتاح: content و seo (title, meta_description, meta_keywords, og_*)."
+          }
+        },
+        {
+          "name": "Get Shipping - الشحن",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/page-contents/shipping",
+            "description": "نص صفحة الشحن + إعدادات SEO."
+          }
+        },
+        {
+          "name": "Get Returns - الاسترجاع",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/page-contents/returns"
+          }
+        },
+        {
+          "name": "Get FAQ - الأسئلة الشائعة",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/page-contents/faq"
+          }
+        },
+        {
+          "name": "Get Meta Pixel ID - معرف بيكسل ميتا",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/page-contents/meta_pixel_id",
+            "description": "لربط إعلانات فيسبوك/ميتا. يرجع content = معرف البيكسل و seo إن وُجد."
+          }
+        },
+        {
+          "name": "Get Home (SEO) - الصفحة الرئيسية",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/page-contents/home",
+            "description": "إعدادات SEO للصفحة الرئيسية (title, meta, og)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Hero Slides (صور الهيرو / الكاروسيل)",
+      "item": [
+        {
+          "name": "Get Hero Slides - صور الهيرو",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/hero-slides",
+            "description": "صور مفعلة بترتيب عشوائي (للكاروسيل في بداية الموقع). كل عنصر: id, image, alt_text, caption, sort_order."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Social Links (حسابات التواصل الاجتماعي)",
+      "item": [
+        {
+          "name": "Get Social Links - روابط التواصل",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/social-links",
+            "description": "يرجع روابط فيسبوك، انستغرام، تويتر، سناب شات، واتساب، تيك توك، يوتيوب. البيانات تُضبط من لوحة التحكم → محتوى الصفحات → حسابات التواصل الاجتماعي."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Visits (تسجيل الزيارات)",
+      "item": [
+        {
+          "name": "Record Visit - قسم",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"category\",\n  \"id\": 1\n}"
+            },
+            "url": "{{base_url}}/api/visits",
+            "description": "تسجيل زيارة قسم. استبدل id بمعرف القسم. اختياري: city, country, country_name."
+          }
+        },
+        {
+          "name": "Record Visit - منتج",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"product\",\n  \"id\": 1\n}"
+            },
+            "url": "{{base_url}}/api/visits",
+            "description": "تسجيل زيارة منتج. استبدل id بمعرف المنتج. اختياري: city, country, country_name."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Remaining API Endpoints (التحديث والحذف والتفاصيل)",
+      "description": "تكملة المسارات المعرفة في routes/api.php. املئي المتغيرات من طلبات الإنشاء أو أدخلي IDs موجودة. طلبات التعديل والحذف تتطلب token لمستخدم لديه صلاحية admin.",
+      "item": [
+        {
+          "name": "Show Subcategory - عرض قسم فرعي",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/subcategories/{{subcategory_id}}"
+          }
+        },
+        {
+          "name": "List Brands - قائمة الماركات",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/brands"
+          }
+        },
+        {
+          "name": "Show Brand - عرض ماركة",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/brands/{{brand_id}}"
+          }
+        },
+        {
+          "name": "List Product Variants - قائمة خيارات المنتج",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/products/{{product_id}}/variants"
+          }
+        },
+        {
+          "name": "Show Product Variant - عرض خيار منتج",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/products/{{product_id}}/variants/{{variant_id}}"
+          }
+        },
+        {
+          "name": "Get Page Content By Key - جلب محتوى صفحة بالمفتاح",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/api/page-contents/{{page_key}}",
+            "description": "غيّري page_key إلى مفتاح المحتوى المطلوب، مثل shipping أو returns أو faq أو home."
+          }
+        },
+        {
+          "name": "Update Category - تحديث قسم (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Category\",\n  \"is_active\": true,\n  \"hide_price\": false\n}" },
+            "url": "{{base_url}}/api/categories/{{category_id}}"
+          }
+        },
+        {
+          "name": "Update Category - تحديث قسم (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"is_active\": true\n}" },
+            "url": "{{base_url}}/api/categories/{{category_id}}"
+          }
+        },
+        {
+          "name": "Delete Category - حذف قسم",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/categories/{{category_id}}"
+          }
+        },
+        {
+          "name": "Update Subcategory - تحديث قسم فرعي (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Subcategory\",\n  \"default_image_source\": \"google_photos\",\n  \"is_active\": true\n}" },
+            "url": "{{base_url}}/api/subcategories/{{subcategory_id}}"
+          }
+        },
+        {
+          "name": "Update Subcategory - تحديث قسم فرعي (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"is_active\": true\n}" },
+            "url": "{{base_url}}/api/subcategories/{{subcategory_id}}"
+          }
+        },
+        {
+          "name": "Delete Subcategory - حذف قسم فرعي",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/subcategories/{{subcategory_id}}"
+          }
+        },
+        {
+          "name": "Update Brand - تحديث ماركة (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Brand\",\n  \"is_active\": true,\n  \"subcategory_ids\": [{{subcategory_id}}]\n}" },
+            "url": "{{base_url}}/api/brands/{{brand_id}}"
+          }
+        },
+        {
+          "name": "Update Brand - تحديث ماركة (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"is_active\": true\n}" },
+            "url": "{{base_url}}/api/brands/{{brand_id}}"
+          }
+        },
+        {
+          "name": "Delete Brand - حذف ماركة",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/brands/{{brand_id}}"
+          }
+        },
+        {
+          "name": "Update Product - تحديث منتج (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Product\",\n  \"category_id\": {{category_id}},\n  \"subcategory_id\": {{subcategory_id}},\n  \"brand_id\": {{brand_id}},\n  \"image_source\": \"web\",\n  \"price\": 99.99,\n  \"image\": \"https://example.com/product.jpg\",\n  \"google_photo_link\": \"https://photos.google.com/\",\n  \"is_active\": true\n}"
+            },
+            "url": "{{base_url}}/api/products/{{product_id}}"
+          }
+        },
+        {
+          "name": "Update Product - تحديث منتج (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"price\": 99.99\n}" },
+            "url": "{{base_url}}/api/products/{{product_id}}"
+          }
+        },
+        {
+          "name": "Delete Product - حذف منتج",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/products/{{product_id}}"
+          }
+        },
+        {
+          "name": "Update Product Variant - تحديث خيار منتج (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Variant\",\n  \"image\": \"https://example.com/variant.jpg\",\n  \"google_photo_link\": \"https://photos.google.com/\",\n  \"is_active\": true\n}" },
+            "url": "{{base_url}}/api/products/{{product_id}}/variants/{{variant_id}}"
+          }
+        },
+        {
+          "name": "Update Product Variant - تحديث خيار منتج (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"is_active\": true\n}" },
+            "url": "{{base_url}}/api/products/{{product_id}}/variants/{{variant_id}}"
+          }
+        },
+        {
+          "name": "Delete Product Variant - حذف خيار منتج",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/products/{{product_id}}/variants/{{variant_id}}"
+          }
+        }
+      ]
+    }
+  ]
+}
