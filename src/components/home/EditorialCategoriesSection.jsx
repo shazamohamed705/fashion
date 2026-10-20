@@ -31,7 +31,7 @@ export default function EditorialCategoriesSection() {
   return (
     <section
       className="w-full bg-[#F8F4EF]"
-      style={{ padding: 'clamp(30px,4vw,70px) clamp(40px,8%,140px)' }}
+      style={{ padding: 'clamp(30px,4vw,70px) clamp(16px,4%,80px)' }}
     >
       <div
         className="grid grid-cols-1 sm:grid-cols-3 justify-items-center"

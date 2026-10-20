@@ -95,7 +95,33 @@ export default function Navbar() {
     setActiveMenu(null);
   }, []);
 
-  /* ── Close mega-menu on Escape ───────────────────────────────────────── */
+  /* ── Lock body scroll when mobile menu is open ── */
+  useEffect(() => {
+    if (menuOpen) {
+      // Save current scroll position and lock body
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Restore scroll position
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
+    }
+    return () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+    };
+  }, [menuOpen]);
   useEffect(() => {
     const handleKey = (e) => {
       if (e.key === 'Escape') {
@@ -140,7 +166,7 @@ export default function Navbar() {
       >
         {/* ── 1. Announcement bar ── */}
         <div
-          className="marquee-wrapper"
+          className="marquee-wrapper navbar-announcement"
           style={{
             background: 'var(--color-announcement-bg)',
             height: 'var(--announcement-height)',
@@ -306,89 +332,40 @@ export default function Navbar() {
           );
         })()}
 
-        {/* ── 4. Mobile menu ── */}
+        {/* ── 4. Mobile menu — full-screen drawer ── */}
         {menuOpen && (
-          <div
-            style={{
-              background: 'var(--color-mobile-menu-bg)',
-              borderBottom: '1px solid var(--color-mobile-menu-border)',
-            }}
-            className="md:hidden px-5 pt-3 pb-5 flex flex-col gap-1"
-          >
+          <div className="navbar-mobile-drawer md:hidden">
+            <p className="navbar-drawer-section">Shop</p>
             {navLinks.map((link) => (
               <NavLink
                 key={link.label}
                 to={link.path}
                 onClick={() => setMenuOpen(false)}
+                className="navbar-drawer-link"
                 style={({ isActive }) => ({
-                  fontSize: 13,
-                  color: isActive ? 'var(--color-nav-link-hover)' : 'var(--color-nav-link)',
-                  fontWeight: isActive ? 600 : 400,
-                  textDecoration: 'none',
-                  padding: '8px 0',
-                  borderBottom: '1px solid var(--color-mobile-menu-border)',
+                  color: isActive ? '#1a1a1a' : undefined,
+                  fontWeight: isActive ? 700 : undefined,
                 })}
               >
                 {link.label}
               </NavLink>
             ))}
 
-            {/* Sign in row */}
+            <p className="navbar-drawer-section">Account</p>
             <button
+              className="navbar-drawer-btn"
               onClick={() => { setMenuOpen(false); setSignInOpen(true); }}
-              style={{
-                fontSize: 13,
-                color: 'var(--color-nav-link)',
-                fontWeight: 400,
-                textDecoration: 'none',
-                padding: '8px 0',
-                borderBottom: '1px solid var(--color-mobile-menu-border)',
-                background: 'none',
-                border: 'none',
-                borderBottom: '1px solid var(--color-mobile-menu-border)',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-              }}
             >
               Sign in
             </button>
 
-            {/* Cart row */}
             <button
+              className="navbar-drawer-btn"
               onClick={() => { setMenuOpen(false); navigate('/cart'); }}
-              style={{
-                fontSize: 13,
-                color: 'var(--color-nav-link)',
-                fontWeight: 400,
-                padding: '8px 0',
-                borderBottom: '1px solid var(--color-mobile-menu-border)',
-                background: 'none',
-                border: 'none',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-              }}
             >
               Your bag
               {totalItems > 0 && (
-                <span
-                  style={{
-                    background: '#C8502A',
-                    color: '#fff',
-                    fontSize: 10,
-                    fontWeight: 700,
-                    borderRadius: '999px',
-                    padding: '1px 6px',
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {totalItems}
-                </span>
+                <span className="navbar-drawer-badge">{totalItems}</span>
               )}
             </button>
           </div>

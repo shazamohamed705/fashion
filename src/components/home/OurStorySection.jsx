@@ -63,11 +63,11 @@ export default function OurStorySection() {
             <h2 className="story-title-2 story-h2-red">
               So are people.
             </h2>
-            <p className="story-body story-body-text">
+            <p className="story-body story-body-text story-hide-mobile">
               Every garment is threads crossing over and under each other.
               That is our idea of community too: different people, held together.
             </p>
-            <Link to="/hero" className="story-link story-read-link">
+            <Link to="/hero" className="story-link story-read-link story-hide-mobile">
               Read our story
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" strokeWidth="2"
@@ -196,14 +196,6 @@ export default function OurStorySection() {
             ))}
           </div>
         </div>
-      </div>
-
-      {/* ── Cotton Banner — shared ── */}
-      <div className="story-banner">
-        <h2 className="story-banner-title">Soft cotton, cut for real life.</h2>
-        <Link to="/new-arrivals" className="story-banner-btn">
-          Shop new arrivals
-        </Link>
       </div>
 
     </section>
