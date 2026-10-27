@@ -1,122 +1,171 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+/* ── Nav columns data ── */
+const columns = [
+  {
+    heading: 'Shop',
+    links: [
+      { label: 'Women',        path: '/categories' },
+      { label: 'Men',          path: '/categories' },
+      { label: 'Kids',         path: '/categories' },
+      { label: 'New arrivals', path: '/new-arrivals' },
+    ],
+  },
+  {
+    heading: 'Help',
+    links: [
+      { label: 'Your bag',          path: '/cart' },
+      { label: 'Delivery & returns', path: '/help' },
+      { label: 'Size guide',         path: '/help' },
+    ],
+  },
+  {
+    heading: 'Brand',
+    links: [
+      { label: 'Our story', path: '/our-story' },
+      { label: 'Materials', path: '/our-story' },
+      { label: 'Contact',   path: '/help' },
+    ],
+  },
+];
+
+/* ── Mobile accordion column ── */
+function AccordionCol({ col }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="border-b border-white/10">
+      {/* Header row — tappable */}
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between py-4 text-left"
+        aria-expanded={open}
+      >
+        <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-white/40">
+          {col.heading}
+        </span>
+        {/* Chevron */}
+        <svg
+          width="14" height="14" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+          className={`text-white/40 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          aria-hidden="true"
+        >
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+
+      {/* Links — collapse/expand */}
+      <div className={`overflow-hidden transition-all duration-300 ${open ? 'max-h-60 pb-4' : 'max-h-0'}`}>
+        <ul className="flex flex-col gap-3">
+          {col.links.map(l => (
+            <li key={l.label}>
+              <Link
+                to={l.path}
+                className="text-[15px] text-white no-underline hover:text-white/70 transition-colors"
+              >
+                {l.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+/* ── Footer ── */
 export default function Footer() {
   return (
-    <footer style={{ background: '#1a1a18', color: '#fff' }}>
+    <footer className="bg-[#1a1a18] text-white">
 
-      {/* ── Middle: logo + nav columns ── */}
-      <div style={{
-        padding: 'clamp(32px,4vw,56px) clamp(16px,6%,88px)',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-        gap: 'clamp(28px,3vw,48px)',
-        alignItems: 'start',
-      }}>
-
-        {/* Brand col */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          {/* Logo box */}
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            border: '1px solid rgba(255,255,255,0.35)',
-            borderRadius: '6px',
-            padding: '6px 16px',
-            width: 'fit-content',
-            fontFamily: 'system-ui, sans-serif',
-            fontSize: '11px',
-            fontWeight: 700,
-            letterSpacing: '0.08em',
-            color: '#fff',
-          }}>
+      {/* ══════════════════════════════════════════
+          MOBILE layout
+      ══════════════════════════════════════════ */}
+      <div className="md:hidden px-5 pt-8 pb-4">
+        {/* Brand */}
+        <div className="mb-6">
+          <div className="inline-flex items-center justify-center border border-white/35 rounded-[6px] px-4 py-1.5 text-[11px] font-bold tracking-[0.08em] text-white mb-4">
             LOGO
           </div>
-
-          <h3 style={{
-            fontFamily: 'var(--font-story)',
-            fontSize: 'clamp(20px, 2vw, 28px)',
-            fontWeight: 400,
-            color: '#fff',
-            margin: 0,
-            lineHeight: 1.2,
-          }}>
+          <h3
+            className="text-white font-normal leading-[1.2] mb-2"
+            style={{ fontFamily: 'var(--font-story)', fontSize: 'clamp(20px,5vw,26px)' }}
+          >
             Woven for everyone.
           </h3>
-          <p style={{
-            fontFamily: 'system-ui, sans-serif',
-            fontSize: '14px',
-            lineHeight: 1.65,
-            color: 'rgba(255,255,255,0.85)',
-            margin: 0,
-          }}>
+          <p className="text-[13px] text-white/75 leading-relaxed">
             Everyday clothes, thoughtfully made for every body.
           </p>
         </div>
 
-        {/* SHOP */}
-        <div>
-          <p style={colHeadStyle}>SHOP</p>
-          <ul style={colListStyle}>
-            {[
-              { label: 'Women', path: '/categories' },
-              { label: 'Men', path: '/categories' },
-              { label: 'Kids', path: '/categories' },
-              { label: 'New arrivals', path: '/new-arrivals' },
-            ].map(l => (
-              <li key={l.label}>
-                <Link to={l.path} style={linkStyle}
-                  onMouseEnter={e => e.currentTarget.style.color = '#fff'}
-                  onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.55)'}
-                >{l.label}</Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {/* Accordion columns */}
+        {columns.map(col => (
+          <AccordionCol key={col.heading} col={col} />
+        ))}
 
-        {/* HELP */}
-        <div>
-          <p style={colHeadStyle}>HELP</p>
-          <ul style={colListStyle}>
-            {['Your bag', 'Delivery & returns', 'Size guide'].map(l => (
-              <li key={l}>
-                <a href="#" style={linkStyle}
-                  onMouseEnter={e => e.currentTarget.style.color = '#fff'}
-                  onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.55)'}
-                >{l}</a>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* BRAND */}
-        <div>
-          <p style={colHeadStyle}>BRAND</p>
-          <ul style={colListStyle}>
-            {['Our story', 'Materials', 'Contact'].map(l => (
-              <li key={l}>
-                <a href="#" style={linkStyle}
-                  onMouseEnter={e => e.currentTarget.style.color = '#fff'}
-                  onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.55)'}
-                >{l}</a>
-              </li>
-            ))}
-          </ul>
-        </div>
-
+        {/* Copyright */}
+        <p className="text-[11px] text-white/30 mt-6 pb-6">
+          © {new Date().getFullYear()} nesj. Made with care in Egypt.
+        </p>
       </div>
 
-      {/* ── Bottom: copyright ── */}
-      <div style={{
-        borderTop: '1px solid rgba(255,255,255,0.1)',
-        padding: 'clamp(14px,1.8vw,20px) clamp(16px,6%,88px)',
-      }}>
-        <p style={{
-          fontFamily: 'system-ui, sans-serif',
-          fontSize: '11px',
-          color: 'rgba(255,255,255,0.3)',
-          margin: 0,
-        }}>
+      {/* ══════════════════════════════════════════
+          DESKTOP layout
+      ══════════════════════════════════════════ */}
+      <div
+        className="hidden md:grid items-start"
+        style={{
+          padding: 'clamp(32px,4vw,56px) clamp(16px,6%,88px)',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+          gap: 'clamp(28px,3vw,48px)',
+        }}
+      >
+        {/* Brand col */}
+        <div className="flex flex-col gap-3.5">
+          <div className="inline-flex items-center justify-center border border-white/35 rounded-[6px] px-4 py-1.5 w-fit text-[11px] font-bold tracking-[0.08em] text-white">
+            LOGO
+          </div>
+          <h3
+            className="text-white font-normal leading-[1.2] m-0"
+            style={{ fontFamily: 'var(--font-story)', fontSize: 'clamp(20px,2vw,28px)' }}
+          >
+            Woven for everyone.
+          </h3>
+          <p className="text-[14px] text-white/85 leading-[1.65] m-0">
+            Everyday clothes, thoughtfully made for every body.
+          </p>
+        </div>
+
+        {/* Nav columns */}
+        {columns.map(col => (
+          <div key={col.heading}>
+            <p className="text-[10px] font-bold tracking-[0.12em] uppercase text-white/40 m-0 mb-3.5">
+              {col.heading}
+            </p>
+            <ul className="list-none m-0 p-0 flex flex-col gap-2.5">
+              {col.links.map(l => (
+                <li key={l.label}>
+                  <Link
+                    to={l.path}
+                    className="text-[15px] text-white/55 no-underline transition-colors hover:text-white"
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop bottom bar */}
+      <div
+        className="hidden md:block border-t border-white/10"
+        style={{ padding: 'clamp(14px,1.8vw,20px) clamp(16px,6%,88px)' }}
+      >
+        <p className="text-[11px] text-white/30 m-0">
           © {new Date().getFullYear()} nesj. Made with care in Egypt.
         </p>
       </div>
@@ -124,31 +173,3 @@ export default function Footer() {
     </footer>
   );
 }
-
-/* ── Shared micro-styles ── */
-const colHeadStyle = {
-  fontFamily: 'system-ui, sans-serif',
-  fontSize: '10px',
-  fontWeight: 700,
-  letterSpacing: '0.12em',
-  textTransform: 'uppercase',
-  color: 'rgba(255,255,255,0.4)',
-  margin: '0 0 14px',
-};
-
-const colListStyle = {
-  listStyle: 'none',
-  margin: 0,
-  padding: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '10px',
-};
-
-const linkStyle = {
-  fontFamily: 'system-ui, sans-serif',
-  fontSize: '15px',
-  color: '#ffffff',
-  textDecoration: 'none',
-  transition: 'color 0.15s',
-};

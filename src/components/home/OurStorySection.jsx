@@ -78,15 +78,7 @@ export default function OurStorySection() {
           </div>
         </div>
 
-        {/* Features strip below image */}
-        <div className="story-mobile-features">
-          {features.map((f, i) => (
-            <div key={f.title} className={`story-feat-item ${featClasses[i]}`}>
-              <h3 className="story-feat-title">{f.title}</h3>
-              <p className="story-feat-body">{f.body}</p>
-            </div>
-          ))}
-        </div>
+
       </div>
 
       {/* ══════════════════════════════════════════

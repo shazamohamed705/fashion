@@ -13,26 +13,20 @@ const announcements = [
   'Cash on delivery available',
 ];
 
-/* ─── Nav links — items with hasMega get a dropdown ─────────────────────── */
+/* ─── Nav links ──────────────────────────────────────────────────────────── */
 const navLinks = [
-  { label: 'Women',     path: '/shop',       hasMega: true  },
-  { label: 'Men',       path: '/shop',       hasMega: true  },
-  { label: 'Kids',      path: '/shop',       hasMega: true  },
-  { label: 'Shop all',  path: '/shop',       hasMega: true  },
-  { label: 'Our story', path: '/our-story',  hasMega: false },
-  { label: 'Contact',   path: '/testimonials', hasMega: false },
+  { label: 'Women',     path: '/shop',         hasMega: true  },
+  { label: 'Men',       path: '/shop',         hasMega: true  },
+  { label: 'Kids',      path: '/shop',         hasMega: true  },
+  { label: 'Shop all',  path: '/shop',         hasMega: true  },
+  { label: 'Our story', path: '/our-story',    hasMega: false },
+  { label: 'Contact',   path: '/help',         hasMega: false },
 ];
 
 /* ─── Dot separator ──────────────────────────────────────────────────────── */
 function Dot() {
   return (
-    <span
-      aria-hidden="true"
-      style={{ color: 'var(--color-announcement-text)', opacity: 0.35 }}
-      className="mx-6 select-none"
-    >
-      •
-    </span>
+    <span aria-hidden="true" className="mx-6 select-none text-white/35">•</span>
   );
 }
 
@@ -42,15 +36,7 @@ function AnnouncementStrip() {
     <span className="flex items-center whitespace-nowrap">
       {announcements.map((msg, i) => (
         <span key={i} className="flex items-center">
-          <span
-            style={{
-              fontSize: 'var(--announcement-font-size)',
-              color: 'var(--color-announcement-text)',
-              fontWeight: 500,
-            }}
-          >
-            {msg}
-          </span>
+          <span className="text-[10px] font-medium text-white">{msg}</span>
           {i < announcements.length - 1 && <Dot />}
         </span>
       ))}
@@ -61,23 +47,20 @@ function AnnouncementStrip() {
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Navbar
-   ═══════════════════════════════════════════════════════════════════════════ */
+═══════════════════════════════════════════════════════════════════════════ */
 export default function Navbar() {
-  /* ── State ── */
-  const [menuOpen,    setMenuOpen]    = useState(false);
-  const [activeMenu,  setActiveMenu]  = useState(null); // which mega-menu is open (label string | null)
-  const [signInOpen,  setSignInOpen]  = useState(false);
+  const [menuOpen,   setMenuOpen]   = useState(false);
+  const [activeMenu, setActiveMenu] = useState(null);
+  const [signInOpen, setSignInOpen] = useState(false);
 
-  /* ── Refs ── */
-  const timeoutRef  = useRef(null);
-  const headerRef   = useRef(null);
+  const timeoutRef = useRef(null);
+  const headerRef  = useRef(null);
 
-  /* ── Hooks ── */
   const navigate              = useNavigate();
   const { totalItems, cartIconRef } = useCart();
 
-  /* ── Helpers: open / close mega-menu with a small leave-delay ────────── */
-  const openMenu  = useCallback((label) => {
+  /* ── Mega-menu hover helpers ── */
+  const openMenu = useCallback((label) => {
     clearTimeout(timeoutRef.current);
     setActiveMenu(label);
   }, []);
@@ -98,84 +81,59 @@ export default function Navbar() {
   /* ── Lock body scroll when mobile menu is open ── */
   useEffect(() => {
     if (menuOpen) {
-      // Save current scroll position and lock body
       const scrollY = window.scrollY;
       document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
+      document.body.style.top      = `-${scrollY}px`;
+      document.body.style.width    = '100%';
       document.body.style.overflow = 'hidden';
     } else {
-      // Restore scroll position
       const scrollY = document.body.style.top;
       document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
+      document.body.style.top      = '';
+      document.body.style.width    = '';
       document.body.style.overflow = '';
-      if (scrollY) {
-        window.scrollTo(0, parseInt(scrollY || '0') * -1);
-      }
+      if (scrollY) window.scrollTo(0, parseInt(scrollY) * -1);
     }
     return () => {
       document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
+      document.body.style.top      = '';
+      document.body.style.width    = '';
       document.body.style.overflow = '';
     };
   }, [menuOpen]);
+
+  /* ── Keyboard escape ── */
   useEffect(() => {
     const handleKey = (e) => {
-      if (e.key === 'Escape') {
-        closeMenu();
-        setMenuOpen(false);
-      }
+      if (e.key === 'Escape') { closeMenu(); setMenuOpen(false); }
     };
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
   }, [closeMenu]);
 
-  /* ── Close mega-menu on click outside header ─────────────────────────── */
+  /* ── Close mega on outside click ── */
   useEffect(() => {
     const handleClick = (e) => {
-      if (headerRef.current && !headerRef.current.contains(e.target)) {
-        closeMenu();
-      }
+      if (headerRef.current && !headerRef.current.contains(e.target)) closeMenu();
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, [closeMenu]);
 
-  /* ── Link style helper ───────────────────────────────────────────────── */
-  const linkStyle = ({ isActive }) => ({
-    fontSize: 'var(--nav-link-font-size)',
-    color: isActive ? 'var(--color-nav-link-hover)' : 'var(--color-nav-link)',
-    fontWeight: isActive ? 700 : 'var(--nav-link-font-weight)',
-    textDecoration: 'none',
-    whiteSpace: 'nowrap',
-    transition: 'color 0.15s',
-  });
-
   return (
     <>
       {/* ════════════════════════════════════════════════════════════════════
-          Header — sticky, sits above all page content
+          Header
       ════════════════════════════════════════════════════════════════════ */}
-      <header
-        ref={headerRef}
-        className="sticky top-0 z-50"
-        style={{ background: 'var(--color-navbar-bg)' }}
-      >
+      <header ref={headerRef} className="sticky top-0 z-50 bg-white">
+
         {/* ── 1. Announcement bar ── */}
         <div
-          className="marquee-wrapper navbar-announcement"
-          style={{
-            background: 'var(--color-announcement-bg)',
-            height: 'var(--announcement-height)',
-            display: 'flex',
-            alignItems: 'center',
-          }}
+          className="marquee-wrapper flex items-center overflow-hidden w-full bg-[#1c1b19]"
+          style={{ height: '25px' }}
           aria-label="Announcements"
         >
-          <div className="marquee-track" aria-hidden="false">
+          <div className="marquee-track flex w-max" aria-hidden="false">
             <AnnouncementStrip />
             <AnnouncementStrip />
           </div>
@@ -183,34 +141,26 @@ export default function Navbar() {
 
         {/* ── 2. Main navbar ── */}
         <nav
-          style={{
-            background: 'var(--color-navbar-bg)',
-            borderBottom: '1px solid var(--color-navbar-border)',
-            height: 'var(--navbar-height-desktop)',
-            paddingLeft: 'var(--navbar-padding-x)',
-            paddingRight: 'var(--navbar-padding-x)',
-          }}
-          className="flex items-center relative"
+          className="relative flex items-center border-b border-[#e5e5e5] bg-white"
+          style={{ height: '66px', paddingLeft: 'clamp(12px,3.5%,88px)', paddingRight: 'clamp(12px,3.5%,88px)' }}
           aria-label="Main navigation"
         >
-          {/* ── Left: desktop nav links ── */}
-          <div
-            className="hidden md:flex items-center flex-1"
-            style={{ gap: 'var(--nav-link-gap)' }}
-          >
+          {/* Left: desktop nav links */}
+          <div className="hidden md:flex items-center flex-1 gap-4 lg:gap-7">
             {navLinks.map((link) =>
               link.hasMega ? (
-                /* Wrapper handles hover intent */
                 <div
                   key={link.label}
-                  style={{ position: 'static' }}
                   onMouseEnter={() => openMenu(link.label)}
                   onMouseLeave={scheduleClose}
                 >
                   <NavLink
                     to={link.path}
-                    style={linkStyle}
-                    className="hover:underline hover:underline-offset-2"
+                    className={({ isActive }) =>
+                      `text-[12px] lg:text-[14px] font-[600] no-underline whitespace-nowrap transition-colors hover:underline hover:underline-offset-2 ${
+                        isActive ? 'text-[#000]' : 'text-[#5C574F]'
+                      }`
+                    }
                     aria-haspopup="true"
                     aria-expanded={activeMenu === link.label}
                     onClick={() => closeMenu()}
@@ -222,8 +172,11 @@ export default function Navbar() {
                 <NavLink
                   key={link.label}
                   to={link.path}
-                  style={linkStyle}
-                  className="hover:underline hover:underline-offset-2"
+                  className={({ isActive }) =>
+                    `text-[12px] lg:text-[14px] font-[600] no-underline whitespace-nowrap transition-colors hover:underline hover:underline-offset-2 ${
+                      isActive ? 'text-[#000]' : 'text-[#5C574F]'
+                    }`
+                  }
                   onClick={() => closeMenu()}
                 >
                   {link.label}
@@ -232,14 +185,13 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* ── Mobile hamburger ── */}
+          {/* Mobile: hamburger */}
           <div className="flex md:hidden flex-1 items-center">
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label="Toggle navigation menu"
               aria-expanded={menuOpen}
-              style={{ color: 'var(--color-icon)' }}
-              className="p-1"
+              className="p-1 text-[#111] transition-opacity hover:opacity-60"
             >
               {menuOpen
                 ? <X size={20} strokeWidth={1.5} />
@@ -248,60 +200,40 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* ── Center: Logo ── */}
+          {/* Center: Logo */}
           <div className="absolute left-1/2 -translate-x-1/2">
             <NavLink
               to="/"
               aria-label="Go to homepage"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 'var(--logo-width)',
-                height: 'var(--logo-height)',
-                background: 'var(--color-logo-bg)',
-                border: '1px solid var(--color-logo-border)',
-                borderRadius: 'var(--logo-radius)',
-                color: 'var(--color-logo-text)',
-                fontSize: 'var(--logo-font-size)',
-                fontWeight: 600,
-                letterSpacing: '0.12em',
-                textDecoration: 'none',
-                textTransform: 'uppercase',
-              }}
+              className="flex items-center justify-center no-underline rounded-[10px] border border-[#111] bg-white text-[#111] text-[11px] font-semibold tracking-[0.12em] uppercase"
+              style={{ width: '74px', height: '33px' }}
             >
               LOGO
             </NavLink>
           </div>
 
-          {/* ── Right: icon buttons ── */}
-          <div className="flex items-center gap-3 flex-1 justify-end">
-            {/* Search */}
+          {/* Right: icon buttons */}
+          <div className="flex items-center gap-1.5 lg:gap-3 flex-1 justify-end">
             <button
               aria-label="Search"
-              style={{ color: 'var(--color-icon)' }}
-              className="p-1 transition-colors hover:opacity-60"
+              className="p-1 text-[#111] transition-opacity hover:opacity-60"
             >
               <Search size={19} strokeWidth={1.5} />
             </button>
 
-            {/* Account — opens Sign-in modal */}
             <button
               aria-label="Sign in to your account"
               onClick={() => setSignInOpen(true)}
-              style={{ color: 'var(--color-icon)' }}
-              className="p-1 transition-colors hover:opacity-60"
+              className="p-1 text-[#111] transition-opacity hover:opacity-60"
             >
               <User size={19} strokeWidth={1.5} />
             </button>
 
-            {/* Cart */}
             <button
               ref={cartIconRef}
               aria-label={`Shopping bag${totalItems > 0 ? `, ${totalItems} item${totalItems !== 1 ? 's' : ''}` : ''}`}
               onClick={() => navigate('/cart')}
-              className="p-1 transition-colors hover:opacity-60 relative"
-              style={{ color: 'var(--color-icon)' }}
+              className="relative p-1 text-[#111] transition-opacity hover:opacity-60"
             >
               <ShoppingBag size={19} strokeWidth={1.5} />
               {totalItems > 0 && (
@@ -313,7 +245,7 @@ export default function Navbar() {
           </div>
         </nav>
 
-        {/* ── 3. Mega-dropdown panel ── */}
+        {/* ── 3. Mega-dropdown ── */}
         {activeMenu && (() => {
           const link = navLinks.find(l => l.label === activeMenu);
           if (!link?.hasMega) return null;
@@ -321,51 +253,54 @@ export default function Navbar() {
             <div
               onMouseEnter={cancelClose}
               onMouseLeave={scheduleClose}
-              /* Sits just below the nav bar, full-width */
-              style={{ position: 'relative', zIndex: 100 }}
+              className="relative z-[100]"
             >
-              <NavigationDropdown
-                menuKey={activeMenu}
-                onClose={closeMenu}
-              />
+              <NavigationDropdown menuKey={activeMenu} onClose={closeMenu} />
             </div>
           );
         })()}
 
-        {/* ── 4. Mobile menu — full-screen drawer ── */}
+        {/* ── 4. Mobile drawer ── */}
         {menuOpen && (
-          <div className="navbar-mobile-drawer md:hidden">
-            <p className="navbar-drawer-section">Shop</p>
+          <div className="md:hidden fixed inset-0 top-[91px] z-40 bg-white overflow-y-auto border-t border-[#e5e5e5] flex flex-col">
+            <p className="px-5 pt-6 pb-2 text-[10px] font-bold tracking-[0.12em] uppercase text-[#aaa]">
+              Shop
+            </p>
             {navLinks.map((link) => (
               <NavLink
                 key={link.label}
                 to={link.path}
                 onClick={() => setMenuOpen(false)}
-                className="navbar-drawer-link"
-                style={({ isActive }) => ({
-                  color: isActive ? '#1a1a1a' : undefined,
-                  fontWeight: isActive ? 700 : undefined,
-                })}
+                className={({ isActive }) =>
+                  `px-5 py-3.5 text-[15px] font-medium no-underline border-b border-[#f0ece6] transition-colors ${
+                    isActive ? 'text-[#1a1a1a] font-bold' : 'text-[#3a3a3a]'
+                  }`
+                }
               >
                 {link.label}
               </NavLink>
             ))}
 
-            <p className="navbar-drawer-section">Account</p>
+            <p className="px-5 pt-6 pb-2 text-[10px] font-bold tracking-[0.12em] uppercase text-[#aaa]">
+              Account
+            </p>
+
             <button
-              className="navbar-drawer-btn"
+              className="px-5 py-3.5 text-left text-[15px] font-medium text-[#3a3a3a] border-b border-[#f0ece6] transition-colors hover:text-[#1a1a1a]"
               onClick={() => { setMenuOpen(false); setSignInOpen(true); }}
             >
               Sign in
             </button>
 
             <button
-              className="navbar-drawer-btn"
+              className="px-5 py-3.5 text-left text-[15px] font-medium text-[#3a3a3a] border-b border-[#f0ece6] transition-colors hover:text-[#1a1a1a] flex items-center gap-2"
               onClick={() => { setMenuOpen(false); navigate('/cart'); }}
             >
               Your bag
               {totalItems > 0 && (
-                <span className="navbar-drawer-badge">{totalItems}</span>
+                <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-[#C95738] text-white text-[10px] font-bold px-1">
+                  {totalItems}
+                </span>
               )}
             </button>
           </div>
@@ -373,17 +308,11 @@ export default function Navbar() {
       </header>
 
       {/* ════════════════════════════════════════════════════════════════════
-          Sign-in modal — rendered outside the header so it can be
-          full-screen and stack above everything (z-index 1000).
+          Sign-in modal
       ════════════════════════════════════════════════════════════════════ */}
       <SignInModal
         isOpen={signInOpen}
         onClose={() => setSignInOpen(false)}
-        /* Wire up real handlers when auth backend is ready:
-           onSendCode={async (email) => { ... }}
-           onGoogleAuth={() => { ... }}
-           onAppleAuth={() => { ... }}
-        */
       />
     </>
   );

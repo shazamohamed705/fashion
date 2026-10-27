@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, ShoppingBag, Check } from 'lucide-react';
+import { Heart, ShoppingBag, Check, SlidersHorizontal, X } from 'lucide-react';
 import { allProducts } from '../data/products';
 import { useCart } from '../context/CartContext';
 
@@ -17,10 +17,10 @@ const COLOURS    = [
 ];
 const MAX_PRICE = 2000;
 
-/* ─── Product card ──────────────────────────────────────────────────── */
+/* ─── Product card ─────────────────────────────────────────────── */
 function ProductCard({ p }) {
-  const [liked,  setLiked]  = useState(false);
-  const [added,  setAdded]  = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [added, setAdded] = useState(false);
   const addBtnRef = useRef(null);
   const { addToCart } = useCart();
 
@@ -28,7 +28,6 @@ function ProductCard({ p }) {
     e.preventDefault();
     e.stopPropagation();
     const fromRect = addBtnRef.current?.getBoundingClientRect() ?? null;
-    // Default to first color + middle size
     const color = p.colors?.[0]?.label ?? p.color;
     const size  = p.sizes[Math.floor(p.sizes.length / 2)] ?? p.sizes[0];
     addToCart(p, color, size, 1, fromRect);
@@ -39,110 +38,121 @@ function ProductCard({ p }) {
   return (
     <Link
       to={`/product/${p.id}`}
-      style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', gap: '10px', cursor: 'pointer' }}
+      className="group flex flex-col gap-2"
+      style={{ textDecoration: 'none', color: 'inherit' }}
       aria-label={p.name}
-      className="group"
     >
-      {/* Image container */}
-      <div style={{
-        position: 'relative',
-        width: '100%',
-        aspectRatio: '398 / 413',
-        borderRadius: '20px',
-        overflow: 'hidden',
-        background: '#f2eeea',
-      }}>
+      {/* Image */}
+      <div className="relative w-full overflow-hidden bg-[#f2eeea]" style={{ aspectRatio: '398/413', borderRadius: 16 }}>
         <img
           src={p.img} alt={p.name} loading="lazy"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block', transition: 'transform 0.4s ease' }}
-          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
-          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+          className="w-full h-full object-cover object-top transition-transform duration-400 group-hover:scale-[1.03]"
         />
         {p.isNew && (
-          <span style={{ position: 'absolute', top: 12, left: 12, background: '#FAF6EF', color: '#C8502A', border: '1px solid #C8502A', fontSize: '10px', fontWeight: 600, borderRadius: '999px', padding: '3px 10px' }}>New</span>
+          <span className="absolute top-2.5 left-2.5 bg-[#FAF6EF] text-[#C8502A] border border-[#C8502A] text-[10px] font-semibold rounded-full px-2.5 py-0.5">New</span>
         )}
-        {/* Wishlist */}
-        <button aria-label="Add to wishlist" onClick={e => { e.preventDefault(); setLiked(l => !l); }}
-          style={{ position: 'absolute', top: 10, right: 10, background: '#fff', border: 'none', borderRadius: '50%', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
-          <Heart size={14} strokeWidth={1.5} fill={liked ? '#C8502A' : 'none'} color={liked ? '#C8502A' : '#666'} />
+        <button
+          aria-label="Wishlist"
+          onClick={e => { e.preventDefault(); setLiked(l => !l); }}
+          className="absolute top-2 right-2 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-sm"
+        >
+          <Heart size={13} strokeWidth={1.5} fill={liked ? '#C8502A' : 'none'} color={liked ? '#C8502A' : '#666'} />
         </button>
-
-        {/* Quick-add to cart — appears on hover */}
+        {/* Quick add — hover on desktop, always visible on mobile */}
         <button
           ref={addBtnRef}
-          aria-label={`Quick add ${p.name} to cart`}
           onClick={handleQuickAdd}
-          style={{
-            position: 'absolute',
-            bottom: 10,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            background: added ? '#1a1a1a' : 'rgba(255,255,255,0.95)',
-            border: 'none',
-            borderRadius: '999px',
-            padding: '7px 16px',
-            fontSize: '11px',
-            fontWeight: 600,
-            fontFamily: 'system-ui, sans-serif',
-            color: added ? '#fff' : '#1a1a1a',
-            cursor: 'pointer',
-            whiteSpace: 'nowrap',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 5,
-            transition: 'opacity 0.2s, background 0.2s, color 0.2s',
-            opacity: 0,
-          }}
-          className="card-quick-add"
+          className={`absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11px] font-semibold whitespace-nowrap shadow-md transition-all duration-200
+            md:opacity-0 md:group-hover:opacity-100
+            ${added ? 'bg-[#1a1a1a] text-white' : 'bg-white/95 text-[#1a1a1a]'}`}
         >
           {added
-            ? <><Check size={12} strokeWidth={2.5} /> Added</>
-            : <><ShoppingBag size={12} strokeWidth={1.5} /> Quick add</>
+            ? <><Check size={11} strokeWidth={2.5} />Added</>
+            : <><ShoppingBag size={11} strokeWidth={1.5} />Quick add</>
           }
         </button>
       </div>
 
       {/* Info */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-        <p style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(13px,1.05vw,15px)', fontWeight: 600, color: '#1a1a1a', margin: 0, lineHeight: 1.25 }}>{p.name}</p>
-        <p style={{ fontFamily: 'system-ui', fontSize: '11px', color: '#aaa', margin: 0 }}>{p.color} · {p.sizes.join(' · ')}</p>
-        <p style={{ fontFamily: 'system-ui', fontSize: '13px', fontWeight: 700, color: '#1a1a1a', margin: 0 }}>EGP {p.price.toLocaleString()}</p>
+      <div className="flex flex-col gap-0.5 px-0.5">
+        <p className="text-[13px] font-semibold text-[#1a1a1a] m-0 leading-snug" style={{ fontFamily: 'var(--font-heading)' }}>{p.name}</p>
+        <p className="text-[11px] text-[#aaa] m-0">{p.color} · {p.sizes.join(' · ')}</p>
+        <p className="text-[13px] font-bold text-[#1a1a1a] m-0">EGP {p.price.toLocaleString()}</p>
       </div>
     </Link>
   );
 }
 
-/* ─── Custom dropdown ──────────────────────────────────────────────── */
+/* ─── Filter select ─────────────────────────────────────────────── */
 function FilterSelect({ value, onChange, options }) {
   return (
-    <div style={{ position: 'relative', width: '100%' }}>
+    <div className="relative w-full">
       <select
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        style={{
-          width: '100%', height: '44px', border: '1px solid #d0ccc7', borderRadius: '22px',
-          padding: '0 44px 0 18px', fontSize: '13px', color: '#1a1a1a', background: '#fff',
-          cursor: 'pointer', appearance: 'none', WebkitAppearance: 'none', outline: 'none',
-        }}
+        value={value} onChange={e => onChange(e.target.value)}
+        className="w-full h-11 border border-[#d0ccc7] rounded-full pl-4 pr-10 text-[13px] text-[#1a1a1a] bg-white cursor-pointer outline-none appearance-none"
       >
         {options.map(o => <option key={o} value={o}>{o}</option>)}
       </select>
-      <svg style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
-        width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M6 9l6 6 6-6" />
       </svg>
     </div>
   );
 }
 
-/* ─── Page ─────────────────────────────────────────────────────────── */
+/* ─── Filter panel content (shared between sidebar & drawer) ─── */
+function FilterPanel({ category, setCategory, size, setSize, colour, setColour, maxPrice, setMaxPrice, onClear }) {
+  const pct = ((maxPrice - 200) / (MAX_PRICE - 200)) * 100;
+  return (
+    <div className="flex flex-col gap-5">
+      <div>
+        <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#1a1a1a] mb-2">Category</p>
+        <FilterSelect value={category} onChange={setCategory} options={CATEGORIES} />
+      </div>
+      <div>
+        <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#1a1a1a] mb-2">Size</p>
+        <FilterSelect value={size} onChange={setSize} options={SIZES} />
+      </div>
+      <div>
+        <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#1a1a1a] mb-2">Colour</p>
+        <div className="flex flex-wrap gap-2 items-center">
+          <button onClick={() => setColour('All')}
+            className={`text-[12px] bg-none border-none cursor-pointer px-0.5 ${colour === 'All' ? 'text-[#1a1a1a] font-semibold underline underline-offset-2' : 'text-[#aaa]'}`}>
+            All
+          </button>
+          {COLOURS.filter(c => c.hex).map(c => (
+            <button key={c.label} title={c.label} onClick={() => setColour(c.label)} aria-label={c.label}
+              className="w-6 h-6 rounded-full cursor-pointer outline-none transition-transform"
+              style={{ background: c.hex, border: colour === c.label ? '2.5px solid #1a1a1a' : '1.5px solid rgba(0,0,0,0.12)', transform: colour === c.label ? 'scale(1.15)' : 'scale(1)' }} />
+          ))}
+        </div>
+      </div>
+      <div>
+        <p className="text-[13px] font-bold text-[#1a1a1a] mb-2">Up to EGP {maxPrice.toLocaleString()}</p>
+        <div className="border border-[#d0ccc7] rounded-full px-3.5 py-2.5 bg-white flex items-center gap-2">
+          <span className="text-[10px] text-[#aaa] whitespace-nowrap shrink-0">EGP 0</span>
+          <input type="range" min={200} max={MAX_PRICE} step={100} value={maxPrice}
+            onChange={e => setMaxPrice(Number(e.target.value))}
+            className="price-range flex-1 min-w-0 block"
+            style={{ background: `linear-gradient(to right, #C8502A 0%, #C8502A ${pct}%, #e0ddd9 ${pct}%, #e0ddd9 100%)` }} />
+          <span className="text-[10px] text-[#aaa] whitespace-nowrap shrink-0">EGP {MAX_PRICE.toLocaleString()}</span>
+        </div>
+      </div>
+      <button onClick={onClear} className="text-[12px] font-medium text-[#C8502A] bg-transparent border-none cursor-pointer text-left p-0">
+        Clear filters
+      </button>
+    </div>
+  );
+}
+
+/* ─── Page ──────────────────────────────────────────────────────── */
 export default function ShopAllPage() {
   const [category, setCategory] = useState('All');
   const [size,     setSize]     = useState('All');
   const [colour,   setColour]   = useState('All');
   const [maxPrice, setMaxPrice] = useState(MAX_PRICE);
   const [sortBy,   setSortBy]   = useState('Featured');
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const filtered = useMemo(() => {
     let list = allProducts.filter(p => {
@@ -160,114 +170,119 @@ export default function ShopAllPage() {
 
   const clearFilters = () => { setCategory('All'); setSize('All'); setColour('All'); setMaxPrice(MAX_PRICE); };
 
-  return (
-    <div style={{ background: '#fff', minHeight: '100vh' }}>
+  const activeCount = [category !== 'All', size !== 'All', colour !== 'All', maxPrice < MAX_PRICE].filter(Boolean).length;
 
-      {/* Quick-add hover style — injected once */}
+  return (
+    <div className="bg-white min-h-screen">
+
       <style>{`
-        .group:hover .card-quick-add { opacity: 1 !important; }
-        .price-range {
-          -webkit-appearance: none; appearance: none;
-          height: 3px;
-          border-radius: 999px; outline: none; cursor: pointer;
-        }
-        .price-range::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          width: 14px; height: 14px; border-radius: 50%;
-          background: #C8502A; border: 2px solid #fff;
-          box-shadow: 0 0 0 1px #C8502A; cursor: pointer;
-        }
-        .price-range::-moz-range-thumb {
-          width: 14px; height: 14px; border-radius: 50%;
-          background: #C8502A; border: 2px solid #fff;
-          box-shadow: 0 0 0 1px #C8502A; cursor: pointer;
-        }
+        .price-range { -webkit-appearance:none; appearance:none; height:3px; border-radius:999px; outline:none; cursor:pointer; }
+        .price-range::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:#C8502A; border:2px solid #fff; box-shadow:0 0 0 1px #C8502A; cursor:pointer; }
+        .price-range::-moz-range-thumb { width:14px; height:14px; border-radius:50%; background:#C8502A; border:2px solid #fff; cursor:pointer; }
       `}</style>
 
-      {/* ── Breadcrumb ── */}
-      <div style={{ padding: 'clamp(16px,2vw,28px) clamp(16px,6%,88px) 0', fontFamily: 'system-ui', fontSize: '12px', color: '#aaa' }}>
-        Home&nbsp;/&nbsp;Shop all&nbsp;/&nbsp;New arrivals
+      {/* Breadcrumb */}
+      <div className="px-4 md:px-[clamp(16px,6%,88px)] pt-5 pb-0 text-[12px] text-[#aaa]" style={{ fontFamily: 'system-ui' }}>
+        Home / Shop all / New arrivals
       </div>
 
-      {/* ── Page heading ── */}
-      <div style={{ padding: 'clamp(10px,1.2vw,16px) clamp(16px,6%,88px) clamp(16px,2vw,24px)' }}>
-        <h1 style={{ fontFamily: 'var(--font-story)', fontSize: 'clamp(30px,3.8vw,48px)', fontWeight: 400, color: '#1a1a1a', margin: '0 0 8px', lineHeight: 1.1 }}>
+      {/* Heading */}
+      <div className="px-4 md:px-[clamp(16px,6%,88px)] pt-3 pb-4">
+        <h1 className="font-normal text-[#1a1a1a] m-0 mb-2 leading-[1.1]" style={{ fontFamily: 'var(--font-story)', fontSize: 'clamp(28px,3.8vw,48px)' }}>
           shop all
         </h1>
-        <p style={{ fontFamily: 'system-ui', fontSize: 'clamp(13px,1vw,15px)', color: '#555', margin: 0, lineHeight: 1.5 }}>
+        <p className="text-[13px] text-[#555] m-0 leading-relaxed">
           Well-made everyday pieces in soft fabrics and easy shapes, ready to become your own.
         </p>
       </div>
 
-      {/* ── Body: sidebar + grid ── */}
-      <div style={{ display: 'flex', gap: 'clamp(20px,2.5vw,40px)', padding: '0 clamp(16px,6%,88px) clamp(40px,5vw,72px)', alignItems: 'flex-start' }}>
+      {/* ══ MOBILE toolbar ══ */}
+      <div className="flex md:hidden items-center justify-between px-4 py-2.5 border-t border-b border-[#ece8e2] bg-white sticky top-[91px] z-20">
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="flex items-center gap-2 text-[13px] font-medium text-[#1a1a1a]"
+        >
+          <SlidersHorizontal size={15} strokeWidth={1.8} />
+          Filter
+          {activeCount > 0 && (
+            <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#C8502A] text-white text-[9px] font-bold">{activeCount}</span>
+          )}
+        </button>
+        <div className="flex items-center gap-2">
+          <span className="text-[12px] text-[#aaa]">Sort</span>
+          <select value={sortBy} onChange={e => setSortBy(e.target.value)}
+            className="border border-[#d0ccc7] rounded-full px-3 py-1 text-[12px] text-[#1a1a1a] bg-white cursor-pointer outline-none">
+            {['Featured','Newest','Price: Low to High','Price: High to Low'].map(o => <option key={o}>{o}</option>)}
+          </select>
+        </div>
+      </div>
 
-        {/* ── Filter sidebar ── */}
-        <aside style={{ flexShrink: 0, width: 'clamp(160px,16%,210px)', display: 'flex', flexDirection: 'column', gap: '20px', paddingTop: '4px' }}>
-          <h2 style={{ fontFamily: 'system-ui', fontSize: '16px', fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Filter</h2>
-
-          <div>
-            <p style={labelStyle}>Category</p>
-            <FilterSelect value={category} onChange={setCategory} options={CATEGORIES} />
-          </div>
-
-          <div>
-            <p style={labelStyle}>Size</p>
-            <FilterSelect value={size} onChange={setSize} options={SIZES} />
-          </div>
-
-          <div>
-            <p style={labelStyle}>Colour</p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px', alignItems: 'center' }}>
-              <button onClick={() => setColour('All')}
-                style={{ fontFamily: 'system-ui', fontSize: '12px', color: colour === 'All' ? '#1a1a1a' : '#aaa', fontWeight: colour === 'All' ? 600 : 400, background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px', textDecoration: colour === 'All' ? 'underline' : 'none', textUnderlineOffset: '2px' }}>
-                All
+      {/* ══ MOBILE filter drawer ══ */}
+      {drawerOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end md:hidden">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/40" onClick={() => setDrawerOpen(false)} />
+          {/* Sheet */}
+          <div className="relative bg-white rounded-t-2xl px-5 pt-5 pb-8 max-h-[85vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-[16px] font-bold text-[#1a1a1a] m-0">Filters</h2>
+              <button onClick={() => setDrawerOpen(false)} className="p-1 text-[#666]">
+                <X size={20} strokeWidth={1.5} />
               </button>
-              {COLOURS.filter(c => c.hex).map(c => (
-                <button key={c.label} title={c.label} onClick={() => setColour(c.label)} aria-label={c.label}
-                  style={{ width: 26, height: 26, borderRadius: '50%', background: c.hex, border: colour === c.label ? '2.5px solid #1a1a1a' : '1.5px solid rgba(0,0,0,0.12)', cursor: 'pointer', outline: 'none', transition: 'border 0.15s, transform 0.15s', transform: colour === c.label ? 'scale(1.15)' : 'scale(1)', flexShrink: 0 }} />
-              ))}
             </div>
+            <FilterPanel
+              category={category} setCategory={setCategory}
+              size={size} setSize={setSize}
+              colour={colour} setColour={setColour}
+              maxPrice={maxPrice} setMaxPrice={setMaxPrice}
+              onClear={clearFilters}
+            />
+            <button
+              onClick={() => setDrawerOpen(false)}
+              className="mt-6 w-full bg-[#1a1a1a] text-white rounded-full py-3 text-[14px] font-semibold"
+            >
+              Show {filtered.length} results
+            </button>
           </div>
+        </div>
+      )}
 
-          <div>
-            <p style={{ ...labelStyle, color: '#1a1a1a', fontWeight: 700, fontSize: '13px', textTransform: 'none', letterSpacing: 0 }}>
-              Up to EGP {maxPrice.toLocaleString()}
-            </p>
-            <div style={{ border: '1px solid #d0ccc7', borderRadius: '22px', padding: '10px 14px', background: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontFamily: 'system-ui', fontSize: '10px', color: '#aaa', whiteSpace: 'nowrap', flexShrink: 0 }}>EGP 0</span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <input type="range" min={200} max={MAX_PRICE} step={100} value={maxPrice}
-                  onChange={e => setMaxPrice(Number(e.target.value))}
-                  className="price-range"
-                  style={{ width: '100%', display: 'block', background: `linear-gradient(to right, #C8502A 0%, #C8502A ${((maxPrice - 200) / (MAX_PRICE - 200)) * 100}%, #e0ddd9 ${((maxPrice - 200) / (MAX_PRICE - 200)) * 100}%, #e0ddd9 100%)` }} />
-              </div>
-              <span style={{ fontFamily: 'system-ui', fontSize: '10px', color: '#aaa', whiteSpace: 'nowrap', flexShrink: 0 }}>EGP {MAX_PRICE.toLocaleString()}</span>
-            </div>
-          </div>
+      {/* ══ Body ══ */}
+      <div className="flex gap-8 px-4 md:px-[clamp(16px,6%,88px)] pb-16 pt-4 items-start">
 
-          <button onClick={clearFilters} style={{ fontFamily: 'system-ui', fontSize: '12px', fontWeight: 500, color: '#C8502A', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0 }}>
-            Clear filters
-          </button>
+        {/* Sidebar — desktop only */}
+        <aside className="hidden md:flex shrink-0 flex-col gap-5 pt-1" style={{ width: 'clamp(160px,16%,210px)' }}>
+          <h2 className="text-[16px] font-bold text-[#1a1a1a] m-0">Filter</h2>
+          <FilterPanel
+            category={category} setCategory={setCategory}
+            size={size} setSize={setSize}
+            colour={colour} setColour={setColour}
+            maxPrice={maxPrice} setMaxPrice={setMaxPrice}
+            onClear={clearFilters}
+          />
         </aside>
 
-        {/* ── Grid area ── */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            <p style={{ fontFamily: 'system-ui', fontSize: '12px', color: '#aaa', margin: 0 }}>{filtered.length} items</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontFamily: 'system-ui', fontSize: '12px', color: '#aaa' }}>Sort by</span>
+        {/* Grid area */}
+        <div className="flex-1 min-w-0">
+          {/* Sort bar — desktop */}
+          <div className="hidden md:flex justify-between items-center mb-5">
+            <p className="text-[12px] text-[#aaa] m-0">{filtered.length} items</p>
+            <div className="flex items-center gap-2">
+              <span className="text-[12px] text-[#aaa]">Sort by</span>
               <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-                style={{ border: '1px solid #d0ccc7', borderRadius: '999px', padding: '6px 16px', fontSize: '12px', color: '#1a1a1a', background: '#fff', cursor: 'pointer' }}>
+                className="border border-[#d0ccc7] rounded-full px-4 py-1.5 text-[12px] text-[#1a1a1a] bg-white cursor-pointer outline-none">
                 {['Featured','Newest','Price: Low to High','Price: High to Low'].map(o => <option key={o}>{o}</option>)}
               </select>
             </div>
           </div>
 
+          {/* Count — mobile */}
+          <p className="md:hidden text-[12px] text-[#aaa] mb-3">{filtered.length} items</p>
+
           {filtered.length === 0
-            ? <p style={{ fontFamily: 'system-ui', fontSize: '14px', color: '#999' }}>No products match your filters.</p>
+            ? <p className="text-[14px] text-[#999]">No products match your filters.</p>
             : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 'clamp(12px,1.6vw,20px)' }}>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                 {filtered.map(p => <ProductCard key={p.id} p={p} />)}
               </div>
             )
@@ -277,8 +292,3 @@ export default function ShopAllPage() {
     </div>
   );
 }
-
-const labelStyle = {
-  fontFamily: 'system-ui', fontSize: '11px', fontWeight: 700, color: '#1a1a1a',
-  textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 8px',
-};

@@ -1,9 +1,6 @@
 import { NavLink } from 'react-router-dom';
 
-/* ─── Dropdown data ──────────────────────────────────────────────────────
-   Each top-level key maps to a nav item label (lowercase).
-   Add / remove items here without touching Navbar.jsx.
-────────────────────────────────────────────────────────────────────────── */
+/* ─── Dropdown data ──────────────────────────────────────────────────────── */
 export const dropdownData = {
   women: {
     columns: [
@@ -57,16 +54,16 @@ export const dropdownData = {
       {
         heading: 'BY FABRIC',
         links: [
-          { label: 'Cotton',   path: '/shop' },
-          { label: 'Linen',    path: '/shop' },
-          { label: 'Merino',   path: '/shop' },
+          { label: 'Cotton', path: '/shop' },
+          { label: 'Linen',  path: '/shop' },
+          { label: 'Merino', path: '/shop' },
         ],
       },
       {
         heading: 'FEATURED',
         links: [
-          { label: 'New arrivals',     path: '/new-arrivals', highlight: true },
-          { label: 'The linen edit',   path: '/shop' },
+          { label: 'New arrivals',       path: '/new-arrivals', highlight: true },
+          { label: 'The linen edit',     path: '/shop' },
           { label: 'Weekend essentials', path: '/shop' },
         ],
       },
@@ -78,25 +75,25 @@ export const dropdownData = {
       {
         heading: 'CLOTHING',
         links: [
-          { label: 'All kids',   path: '/shop?cat=Kids' },
-          { label: 'Tops',       path: '/shop?cat=Kids' },
-          { label: 'Bottoms',    path: '/shop?cat=Kids' },
-          { label: 'Outerwear',  path: '/shop?cat=Kids' },
+          { label: 'All kids',  path: '/shop?cat=Kids' },
+          { label: 'Tops',      path: '/shop?cat=Kids' },
+          { label: 'Bottoms',   path: '/shop?cat=Kids' },
+          { label: 'Outerwear', path: '/shop?cat=Kids' },
         ],
       },
       {
         heading: 'BY AGE',
         links: [
-          { label: '0–2 years',   path: '/shop?cat=Kids' },
-          { label: '3–8 years',   path: '/shop?cat=Kids' },
-          { label: '9–14 years',  path: '/shop?cat=Kids' },
+          { label: '0–2 years',  path: '/shop?cat=Kids' },
+          { label: '3–8 years',  path: '/shop?cat=Kids' },
+          { label: '9–14 years', path: '/shop?cat=Kids' },
         ],
       },
       {
         heading: 'FEATURED',
         links: [
-          { label: 'New arrivals',    path: '/new-arrivals', highlight: true },
-          { label: 'Back to school',  path: '/shop' },
+          { label: 'New arrivals',   path: '/new-arrivals', highlight: true },
+          { label: 'Back to school', path: '/shop' },
         ],
       },
     ],
@@ -107,9 +104,9 @@ export const dropdownData = {
       {
         heading: 'CLOTHING',
         links: [
-          { label: 'All women',  path: '/shop?cat=Women' },
-          { label: 'All men',    path: '/shop?cat=Men' },
-          { label: 'All kids',   path: '/shop?cat=Kids' },
+          { label: 'All women', path: '/shop?cat=Women' },
+          { label: 'All men',   path: '/shop?cat=Men'   },
+          { label: 'All kids',  path: '/shop?cat=Kids'  },
         ],
       },
       {
@@ -134,94 +131,65 @@ export const dropdownData = {
   },
 };
 
-/* ─── Shared styles ──────────────────────────────────────────────────────── */
-const colHead = {
-  fontFamily: 'system-ui, sans-serif',
-  fontSize: '10px',
-  fontWeight: 700,
-  letterSpacing: '0.12em',
-  textTransform: 'uppercase',
-  color: '#aaa',
-  margin: '0 0 14px',
-};
-const ulStyle = {
-  listStyle: 'none',
-  margin: 0,
-  padding: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '10px',
-};
-
 /* ═══════════════════════════════════════════════════════════════════════════
-   NavigationDropdown
-   Props:
-     menuKey   {string}  — lowercase nav label, e.g. 'women'
-     onClose   {() => void}
-   ═══════════════════════════════════════════════════════════════════════════ */
+   NavigationDropdown — pure Tailwind
+═══════════════════════════════════════════════════════════════════════════ */
 export default function NavigationDropdown({ menuKey, onClose }) {
   const data = dropdownData[menuKey?.toLowerCase()];
   if (!data) return null;
 
-  return (
-    <div
-      role="region"
-      aria-label={`${menuKey} navigation`}
-      style={{
-        position: 'absolute',
-        top: '100%',
-        left: 0,
-        right: 0,
-        background: '#fff',
-        borderBottom: '1px solid #e5e5e5',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-        zIndex: 100,
-        padding: 'clamp(24px,3vw,40px) clamp(16px,6%,88px)',
-        display: 'grid',
-        gridTemplateColumns: data.columns.length === 3 ? '2fr 1fr 1fr' : `repeat(${data.columns.length}, 1fr)`,
-        gap: '40px',
-        /* Entrance animation */
-        animation: 'dropdown-in 0.18s ease both',
-      }}
-    >
-      {data.columns.map((col) => (
-        <div key={col.heading}>
-          <p style={colHead}>{col.heading}</p>
-          <ul style={ulStyle}>
-            {col.links.map((link) => (
-              <li key={link.label}>
-                <NavLink
-                  to={link.path}
-                  onClick={onClose}
-                  style={{
-                    fontFamily: 'system-ui, sans-serif',
-                    fontSize: '14px',
-                    color: link.highlight ? '#C9573A' : '#3a3a3a',
-                    textDecoration: 'none',
-                    transition: 'color 0.15s',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.color = link.highlight ? '#a83d1e' : '#1a1a1a';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.color = link.highlight ? '#C9573A' : '#3a3a3a';
-                  }}
-                >
-                  {link.label}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+  const colCount = data.columns.length;
 
-      {/* Dropdown entrance keyframe — injected once */}
+  return (
+    <>
+      {/* Entrance keyframe — tiny, injected once */}
       <style>{`
         @keyframes dropdown-in {
           from { opacity: 0; transform: translateY(-6px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        .nav-dropdown { animation: dropdown-in 0.18s ease both; }
       `}</style>
-    </div>
+
+      <div
+        role="region"
+        aria-label={`${menuKey} navigation`}
+        className="nav-dropdown absolute top-full left-0 right-0 z-[100] bg-white border-b border-[#e5e5e5] shadow-[0_8px_32px_rgba(0,0,0,0.08)]"
+        style={{
+          padding: 'clamp(24px,3vw,40px) clamp(16px,6%,88px)',
+          display: 'grid',
+          gridTemplateColumns: colCount === 3 ? '2fr 1fr 1fr' : `repeat(${colCount}, 1fr)`,
+          gap: '40px',
+        }}
+      >
+        {data.columns.map((col) => (
+          <div key={col.heading}>
+            {/* Column heading */}
+            <p className="text-[10px] font-bold tracking-[0.12em] uppercase text-[#aaa] mb-3.5 m-0">
+              {col.heading}
+            </p>
+
+            {/* Links */}
+            <ul className="list-none m-0 p-0 flex flex-col gap-2.5">
+              {col.links.map((link) => (
+                <li key={link.label}>
+                  <NavLink
+                    to={link.path}
+                    onClick={onClose}
+                    className={`text-[14px] no-underline transition-colors hover:text-[#1a1a1a] ${
+                      link.highlight
+                        ? 'text-[#C9573A] hover:text-[#a83d1e]'
+                        : 'text-[#3a3a3a]'
+                    }`}
+                  >
+                    {link.label}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </>
   );
 }

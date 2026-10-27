@@ -11,44 +11,57 @@ const infoItems = [
 
 export default function HeroSection() {
   return (
-    <section className="hero-section">
+    <section className="flex flex-col bg-white overflow-hidden isolate">
 
       {/* ══════════════════════════════════════════════
-          MOBILE LAYOUT  (hidden on lg+)
+          MOBILE LAYOUT  (visible below md)
           Full-screen photo + text overlay
       ═══════════════════════════════════════════════ */}
-      <div className="hero-mobile">
+      <div className="relative w-full flex items-end md:hidden"
+           style={{ height: 'calc(100svh - 91px)', minHeight: '520px', maxHeight: '780px' }}>
+
         {/* Background photo */}
         <div
-          className="hero-ken-burns hero-mobile-img"
+          className="hero-ken-burns absolute inset-0 bg-cover bg-[center_top] overflow-hidden"
           role="img"
           aria-label="Woman wearing orange knitwear from the new collection"
           style={{ backgroundImage: 'url("/f53ac22ad1a544a8375057de7c8f36b7b1767d2c.jpg")' }}
         />
 
         {/* Dark gradient overlay */}
-        <div className="hero-mobile-overlay" />
+        <div className="absolute inset-0"
+             style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.38) 45%, rgba(0,0,0,0.05) 100%)' }} />
 
         {/* Text content */}
-        <div className="hero-mobile-content">
-          <p className="hero-text-enter hero-text-d1 hero-eyebrow">
+        <div className="relative z-10 w-full px-5 pb-9">
+
+          <p className="hero-text-enter hero-text-d1 text-[10px] font-medium tracking-[0.14em] text-white/75 uppercase mb-3.5">
             The New Cotton Edit
           </p>
 
-          <h1 className="hero-text-enter hero-text-d2 hero-mobile-h1">
+          <h1 className="hero-text-enter hero-text-d2 font-normal leading-[1.06] tracking-[-0.02em] text-white mb-3.5"
+              style={{ fontFamily: 'var(--font-story)', fontSize: 'clamp(40px,11vw,58px)' }}>
             Made to<br />feel<br />like you.
           </h1>
 
-          <p className="hero-text-enter hero-text-d3 hero-mobile-body">
+          <p className="hero-text-enter hero-text-d3 text-[13px] leading-relaxed text-white/80 mb-5"
+             style={{ maxWidth: '320px' }}>
             Soft structure, honest fabric and room to move.
             Everyday clothing, woven for everyone.
           </p>
 
-          <div className="hero-text-enter hero-text-d4 hero-mobile-btns">
-            <Link to="/new-arrivals" className="hero-btn-primary">
+          <div className="hero-text-enter hero-text-d4 flex flex-wrap gap-2.5">
+            <Link
+              to="/new-arrivals"
+              className="inline-flex items-center whitespace-nowrap rounded-full px-7 py-2.5 text-[13px] font-medium text-white no-underline transition-opacity hover:opacity-90"
+              style={{ background: 'linear-gradient(90deg,#C65A3A 0%,rgba(80,44,33,0.9) 100%)' }}
+            >
               Shop new arrivals
             </Link>
-            <Link to="/shop" className="hero-btn-secondary-light">
+            <Link
+              to="/shop"
+              className="inline-flex items-center whitespace-nowrap rounded-full border border-white/70 bg-transparent px-7 py-2.5 text-[13px] font-medium text-white no-underline transition-colors hover:bg-white/10"
+            >
               Explore the edit
             </Link>
           </div>
@@ -56,65 +69,55 @@ export default function HeroSection() {
       </div>
 
       {/* ══════════════════════════════════════════════
-          DESKTOP LAYOUT  (hidden on mobile)
+          DESKTOP LAYOUT  (visible on md+)
           Left text panel + two photos
       ═══════════════════════════════════════════════ */}
-      <div className="hero-desktop">
+      <div
+        className="hidden md:flex flex-row flex-1"
+        style={{ height: 'calc(100vh - 91px)', minHeight: '560px', maxHeight: '820px' }}
+      >
         {/* ── LEFT: Text panel ── */}
-        <div className="hero-desktop-panel">
+        <div
+          className="flex flex-col justify-center px-10 md:px-12 lg:px-16 shrink-0"
+          style={{ width: 'clamp(280px, 36%, 480px)', background: 'var(--color-hero-panel-bg)' }}
+        >
           <p
-            className="hero-text-enter hero-text-d1"
-            style={{
-              fontSize: 10,
-              fontWeight: 500,
-              letterSpacing: '0.14em',
-              color: '#5C574F',
-              textTransform: 'uppercase',
-              marginBottom: 20,
-            }}
+            className="hero-text-enter hero-text-d1 uppercase tracking-[0.14em] font-medium mb-5"
+            style={{ fontSize: 10, color: '#5C574F' }}
           >
             The New Cotton Edit
           </p>
 
           <h1
-            className="hero-text-enter hero-text-d2"
+            className="hero-text-enter hero-text-d2 font-normal leading-[1.08] tracking-[-0.025em] mb-6"
             style={{
               fontFamily: 'var(--font-story)',
-              fontSize: 'clamp(52px, 6.5vw, 92px)',
-              fontWeight: 400,
-              lineHeight: 1.08,
-              letterSpacing: '-0.025em',
+              fontSize: 'clamp(36px,4.5vw,72px)',
               color: '#1a1a1a',
-              marginBottom: 24,
             }}
           >
             Made to<br />feel<br />like you.
           </h1>
 
           <p
-            className="hero-text-enter hero-text-d3"
-            style={{
-              fontSize: 16,
-              lineHeight: 1.65,
-              color: '#5C574F',
-              maxWidth: 360,
-              marginBottom: 32,
-            }}
+            className="hero-text-enter hero-text-d3 text-base leading-[1.65] mb-8"
+            style={{ color: '#5C574F', maxWidth: '360px' }}
           >
             Soft structure, honest fabric and room to move.
             Everyday clothing, woven for everyone.
           </p>
 
-          <div className="hero-text-enter hero-text-d4 hero-desktop-btns">
+          <div className="hero-text-enter hero-text-d4 flex flex-wrap gap-3">
             <Link
               to="/new-arrivals"
-              className="hero-btn-primary"
+              className="inline-flex items-center whitespace-nowrap rounded-full px-7 py-[11px] text-[13px] font-medium text-white no-underline transition-opacity hover:opacity-90"
+              style={{ background: 'linear-gradient(90deg,#C65A3A 0%,rgba(80,44,33,0.9) 100%)' }}
             >
               Shop new arrivals
             </Link>
             <Link
               to="/shop"
-              className="hero-btn-secondary"
+              className="inline-flex items-center whitespace-nowrap rounded-full border border-[#1a1a1a] bg-transparent px-7 py-[10px] text-[13px] font-medium text-[#1a1a1a] no-underline transition-colors hover:bg-[#1a1a1a] hover:text-white"
             >
               Explore the edit
             </Link>
@@ -122,24 +125,28 @@ export default function HeroSection() {
         </div>
 
         {/* ── RIGHT: Two photos ── */}
-        <div className="hero-desktop-photos">
+        <div className="flex flex-1 overflow-hidden isolate">
+
           {/* Photo 1 — woman */}
-          <div className="hero-photo-l hero-photo-wrap">
+          <div className="hero-photo-l relative overflow-hidden flex-1 isolate">
             <div
-              className="hero-ken-burns hero-photo-inner"
+              className="hero-ken-burns absolute inset-0 bg-cover bg-center"
               style={{ backgroundImage: 'url("/f53ac22ad1a544a8375057de7c8f36b7b1767d2c.jpg")' }}
               role="img"
               aria-label="Woman wearing orange knitwear from the new collection"
             />
-            <div className="hero-photo-shadow-r" />
+            {/* right edge shadow */}
+            <div className="absolute inset-y-0 right-0 w-4 pointer-events-none"
+                 style={{ background: 'linear-gradient(to right, transparent, rgba(0,0,0,0.10))' }} />
           </div>
 
-          <div className="hero-divider" />
+          {/* Divider */}
+          <div className="w-[3px] bg-white shrink-0 z-[2]" />
 
           {/* Photo 2 — men */}
-          <div className="hero-photo-r hero-photo-wrap" style={{ flex: '0 0 38%' }}>
+          <div className="hero-photo-r relative overflow-hidden isolate" style={{ flex: '0 0 38%' }}>
             <div
-              className="hero-ken-burns hero-photo-inner"
+              className="hero-ken-burns absolute inset-0 bg-cover bg-center"
               style={{
                 backgroundImage: 'url("/a650346682558fb9b59d53bea266cca6c9ae4e9e.jpg")',
                 animationDirection: 'alternate-reverse',
@@ -147,20 +154,25 @@ export default function HeroSection() {
               role="img"
               aria-label="Two men wearing the new cotton edit collection"
             />
-            <div className="hero-photo-shadow-l" />
+            {/* left edge shadow */}
+            <div className="absolute inset-y-0 left-0 w-4 pointer-events-none"
+                 style={{ background: 'linear-gradient(to left, transparent, rgba(0,0,0,0.10))' }} />
           </div>
         </div>
       </div>
 
-      {/* ── Bottom info bar — infinite marquee (shared) ── */}
-      <div className="marquee-wrapper hero-marquee-bar">
-        <div className="marquee-track">
+      {/* ── Marquee bar — shared ── */}
+      <div className="marquee-wrapper overflow-hidden w-full border-t border-[#e5e5e5] py-[11px] shrink-0"
+           style={{ background: 'var(--color-hero-panel-bg)' }}>
+        <div className="marquee-track flex w-max">
           {[0, 1].map((copy) => (
             <span key={copy} className="flex items-center" aria-hidden={copy === 1}>
               {infoItems.map((item, i) => (
                 <span key={i} className="flex items-center">
-                  <span className="hero-marquee-item">{item}</span>
-                  <span className="hero-marquee-sep" aria-hidden="true">|</span>
+                  <span className="text-[10px] font-medium tracking-[0.10em] text-[#1a1a1a] uppercase whitespace-nowrap px-8">
+                    {item}
+                  </span>
+                  <span className="text-[10px] text-[#1a1a1a] opacity-25" aria-hidden="true">|</span>
                 </span>
               ))}
             </span>

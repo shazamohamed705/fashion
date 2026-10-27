@@ -19,49 +19,45 @@ const QUICK_LINKS = [
   { label: 'My orders →', path: '/account/orders' },
 ];
 
-/* ── Input ────────────────────────────────────────────────────────────── */
+/* ── Input ─────────────────────────────────────────────── */
 function Field({ id, label, required, value, onChange, error, type = 'text', half }) {
   const [focused, setFocused] = useState(false);
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 5, flex: half ? '1 1 0' : '1 1 100%', minWidth: 0 }}>
-      <label htmlFor={id} style={{ fontFamily: 'system-ui,sans-serif', fontSize: 13, fontWeight: 500, color: '#3a3a3a' }}>
+    <div className={`flex flex-col gap-1 min-w-0 ${half ? 'flex-1' : 'w-full'}`}>
+      <label htmlFor={id} className="text-[13px] font-medium text-[#3a3a3a]" style={{ fontFamily: 'system-ui' }}>
         {label}{required && <span aria-hidden="true"> *</span>}
       </label>
       <input
         id={id} type={type} value={value} onChange={onChange}
+        className="w-full rounded-lg px-3.5 py-[11px] text-[14px] text-[#1a1a1a] bg-white outline-none transition-all"
         style={{
-          fontFamily: 'system-ui,sans-serif', fontSize: 14, color: '#1a1a1a',
-          background: '#fff', border: `1px solid ${error ? '#dc2626' : focused ? ORANGE : '#ddd8d0'}`,
-          borderRadius: 8, padding: '11px 14px', outline: 'none',
-          width: '100%', boxSizing: 'border-box',
+          border: `1px solid ${error ? '#dc2626' : focused ? ORANGE : '#ddd8d0'}`,
           boxShadow: focused ? '0 0 0 2px rgba(201,87,58,0.12)' : 'none',
-          transition: 'border-color 0.15s, box-shadow 0.15s',
+          fontFamily: 'system-ui',
         }}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
       />
-      {error && <p role="alert" style={{ fontSize: 11, color: '#dc2626', margin: 0, fontFamily: 'system-ui,sans-serif' }}>{error}</p>}
+      {error && <p role="alert" className="text-[11px] text-red-600 m-0" style={{ fontFamily: 'system-ui' }}>{error}</p>}
     </div>
   );
 }
 
-/* ── Select ───────────────────────────────────────────────────────────── */
+/* ── Select ─────────────────────────────────────────────── */
 function SelectField({ id, label, required, value, onChange, options, half }) {
   const [focused, setFocused] = useState(false);
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 5, flex: half ? '1 1 0' : '1 1 100%', minWidth: 0 }}>
-      <label htmlFor={id} style={{ fontFamily: 'system-ui,sans-serif', fontSize: 13, fontWeight: 500, color: '#3a3a3a' }}>
+    <div className={`flex flex-col gap-1 min-w-0 ${half ? 'flex-1' : 'w-full'}`}>
+      <label htmlFor={id} className="text-[13px] font-medium text-[#3a3a3a]" style={{ fontFamily: 'system-ui' }}>
         {label}{required && <span aria-hidden="true"> *</span>}
       </label>
       <select
         id={id} value={value} onChange={onChange}
+        className="w-full rounded-lg px-3.5 py-[11px] text-[14px] text-[#1a1a1a] bg-white outline-none cursor-pointer transition-all"
         style={{
-          fontFamily: 'system-ui,sans-serif', fontSize: 14, color: '#1a1a1a',
-          background: '#fff', border: `1px solid ${focused ? ORANGE : '#ddd8d0'}`,
-          borderRadius: 8, padding: '11px 14px', outline: 'none',
-          width: '100%', boxSizing: 'border-box',
+          border: `1px solid ${focused ? ORANGE : '#ddd8d0'}`,
           boxShadow: focused ? '0 0 0 2px rgba(201,87,58,0.12)' : 'none',
-          transition: 'border-color 0.15s', cursor: 'pointer', appearance: 'auto',
+          fontFamily: 'system-ui',
         }}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
@@ -72,14 +68,14 @@ function SelectField({ id, label, required, value, onChange, options, half }) {
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════
    HelpPage
-   ═══════════════════════════════════════════════════════════════════════ */
+═══════════════════════════════════════════════════════ */
 export default function HelpPage() {
   const navigate = useNavigate();
 
-  const [form, setForm]       = useState({ name: 'Salma Hassan', email: 'salma.hassan@example.com', topic: 'Delivery & returns', orderRef: 'NESEJ-DEMO-2030', message: "I'd like some guidance on returning the Relaxed linen shirt from my sample order. The fit feels larger than expected." });
-  const [errors, setErrors]   = useState({});
+  const [form, setForm]     = useState({ name: 'Salma Hassan', email: 'salma.hassan@example.com', topic: 'Delivery & returns', orderRef: 'NESEJ-DEMO-2030', message: "I'd like some guidance on returning the Relaxed linen shirt from my sample order. The fit feels larger than expected." });
+  const [errors, setErrors] = useState({});
   const [sending, setSending] = useState(false);
   const [sent,    setSent]    = useState(false);
 
@@ -109,61 +105,58 @@ export default function HelpPage() {
   };
 
   return (
-    <div style={{ background: '#fff', minHeight: '100vh' }}>
-      <div style={{ maxWidth: 1400, margin: 0, padding: 'clamp(20px,3vw,36px) clamp(40px,6%,88px)' }}>
+    <div className="bg-white min-h-full">
+      <div className="max-w-[1400px] mx-0 px-4 md:px-[clamp(40px,6%,88px)] py-5 md:py-[clamp(20px,3vw,36px)] pb-16">
 
         {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" style={{ marginBottom: 14 }}>
-          <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <nav aria-label="Breadcrumb" className="mb-4">
+          <ol className="list-none m-0 p-0 flex items-center gap-1.5">
             {[{ label: 'Home', path: '/' }, { label: 'Help', path: '#' }, { label: 'Contact', path: '/help' }].map((c, i, arr) => (
-              <li key={c.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <li key={c.label} className="flex items-center gap-1.5">
                 {i < arr.length - 1 ? (
-                  <><button onClick={() => navigate(c.path)} style={{ fontFamily: 'system-ui,sans-serif', fontSize: 12, color: '#888', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                    onMouseEnter={e => e.currentTarget.style.color = '#1a1a1a'} onMouseLeave={e => e.currentTarget.style.color = '#888'}
-                  >{c.label}</button><span style={{ color: '#ccc', fontSize: 12 }}>/</span></>
+                  <><button onClick={() => navigate(c.path)} className="text-[12px] text-[#888] bg-transparent border-none cursor-pointer p-0 hover:text-[#1a1a1a] transition-colors" style={{ fontFamily: 'system-ui' }}>{c.label}</button><span className="text-[#ccc] text-[12px]">/</span></>
                 ) : (
-                  <span style={{ fontFamily: 'system-ui,sans-serif', fontSize: 12, color: '#3a3a3a' }} aria-current="page">{c.label}</span>
+                  <span className="text-[12px] text-[#3a3a3a]" style={{ fontFamily: 'system-ui' }} aria-current="page">{c.label}</span>
                 )}
               </li>
             ))}
           </ol>
         </nav>
 
-        {/* Page heading */}
-        <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(32px,4vw,48px)', fontWeight: 400, color: '#1a1a1a', margin: '0 0 8px', lineHeight: 1.1 }}>
+        {/* Heading */}
+        <h1 className="font-normal text-[#1a1a1a] m-0 mb-2 leading-[1.1]" style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(28px,4vw,48px)' }}>
           Need a hand?
         </h1>
-        <p style={{ fontFamily: 'system-ui,sans-serif', fontSize: 14, color: '#888', margin: 0 }}>
+        <p className="text-[14px] text-[#888] m-0" style={{ fontFamily: 'system-ui' }}>
           Ask about fit, a piece, your delivery or a return. Tell us a little more.
         </p>
-        <div style={{ height: 1, background: '#ece8e2', margin: '20px 0 32px' }} />
+        <div className="h-px bg-[#ece8e2] my-5" />
 
-        {/* Two-column layout */}
-        <div style={{ display: 'flex', gap: 'clamp(40px,6vw,80px)', alignItems: 'flex-start' }}>
+        {/* ── Layout: stacked on mobile, side-by-side on md+ ── */}
+        <div className="flex flex-col md:flex-row gap-8 md:gap-[clamp(40px,6vw,80px)] items-start">
 
-          {/* ── LEFT: sidebar info ── */}
-          <div style={{ width: 220, flexShrink: 0 }}>
-            <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: 22, fontWeight: 400, color: '#1a1a1a', margin: '0 0 10px', lineHeight: 1.2 }}>
+          {/* ── Sidebar ── */}
+          <div className="w-full md:w-[220px] md:shrink-0">
+            <h2 className="font-normal text-[#1a1a1a] m-0 mb-2.5 leading-[1.2]" style={{ fontFamily: 'var(--font-heading)', fontSize: 22 }}>
               A little help, thoughtfully.
             </h2>
-            <p style={{ fontFamily: 'system-ui,sans-serif', fontSize: 13, color: '#666', lineHeight: 1.6, margin: '0 0 20px' }}>
+            <p className="text-[13px] text-[#666] leading-relaxed m-0 mb-5" style={{ fontFamily: 'system-ui' }}>
               Include your order reference if your question is about a purchase. For a question about a piece, share its name and size.
             </p>
 
-            {/* Quick links card */}
-            <div style={{ background: '#FCFBF8', border: '1px solid #ece8e2', borderRadius: 12, padding: '18px 20px', marginBottom: 20 }}>
-              <p style={{ fontFamily: 'var(--font-heading)', fontSize: 16, fontWeight: 500, color: '#1a1a1a', margin: '0 0 12px' }}>
+            {/* Quick links */}
+            <div className="bg-[#FCFBF8] border border-[#ece8e2] rounded-xl p-4 mb-5">
+              <p className="font-medium text-[#1a1a1a] m-0 mb-3 text-[16px]" style={{ fontFamily: 'var(--font-heading)' }}>
                 You might find it here.
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div className="flex flex-col gap-2">
                 {QUICK_LINKS.map(link => (
                   <button
                     key={link.label}
                     type="button"
                     onClick={() => navigate(link.path)}
-                    style={{ fontFamily: 'system-ui,sans-serif', fontSize: 13, color: ORANGE, background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left', textDecoration: 'underline', textUnderlineOffset: 2 }}
-                    onMouseEnter={e => e.currentTarget.style.opacity = '0.7'}
-                    onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                    className="text-[13px] text-left bg-transparent border-none cursor-pointer p-0 underline underline-offset-2 transition-opacity hover:opacity-70"
+                    style={{ fontFamily: 'system-ui', color: ORANGE }}
                   >
                     {link.label}
                   </button>
@@ -171,58 +164,50 @@ export default function HelpPage() {
               </div>
             </div>
 
-            <p style={{ fontFamily: 'system-ui,sans-serif', fontSize: 11, color: '#bbb', lineHeight: 1.5, margin: 0 }}>
+            <p className="text-[11px] text-[#bbb] leading-relaxed m-0" style={{ fontFamily: 'system-ui' }}>
               Illustrative contact form. Submission routing and response times are not established here.
             </p>
           </div>
 
-          {/* ── RIGHT: contact form ── */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontFamily: 'system-ui,sans-serif', fontSize: 12, color: '#aaa', margin: '0 0 16px' }}>
-              * Required fields
-            </p>
+          {/* ── Form ── */}
+          <div className="flex-1 min-w-0 w-full">
+            <p className="text-[12px] text-[#aaa] m-0 mb-4" style={{ fontFamily: 'system-ui' }}>* Required fields</p>
 
-            <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
 
-              {/* Name + Email */}
-              <div style={{ display: 'flex', gap: 16 }}>
-                <Field id="help-name"  label="Your name"      required value={form.name}  onChange={ch('name')}  error={errors.name}  half />
-                <Field id="help-email" label="Email address"  required value={form.email} onChange={ch('email')} error={errors.email} type="email" half />
+              {/* Name + Email — stacked on mobile, side by side on sm+ */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Field id="help-name"  label="Your name"     required value={form.name}  onChange={ch('name')}  error={errors.name}  half />
+                <Field id="help-email" label="Email address" required value={form.email} onChange={ch('email')} error={errors.email} type="email" half />
               </div>
 
               {/* Topic + Order ref */}
-              <div style={{ display: 'flex', gap: 16 }}>
+              <div className="flex flex-col sm:flex-row gap-4">
                 <SelectField id="help-topic" label="What can we help with?" required value={form.topic} onChange={ch('topic')} options={TOPICS} half />
                 <Field id="help-ref" label="Order reference (optional)" value={form.orderRef} onChange={ch('orderRef')} half />
               </div>
 
-              {/* Topics hint */}
-              <p style={{ fontFamily: 'system-ui,sans-serif', fontSize: 12, color: '#aaa', margin: '-8px 0 0' }}>
+              <p className="text-[12px] text-[#aaa] m-0 -mt-2" style={{ fontFamily: 'system-ui' }}>
                 Topics: Size &amp; fit · Delivery &amp; returns · Product care · Account · Other
               </p>
 
               {/* Message */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                <label htmlFor="help-msg" style={{ fontFamily: 'system-ui,sans-serif', fontSize: 13, fontWeight: 500, color: '#3a3a3a' }}>
+              <div className="flex flex-col gap-1">
+                <label htmlFor="help-msg" className="text-[13px] font-medium text-[#3a3a3a]" style={{ fontFamily: 'system-ui' }}>
                   Your message <span aria-hidden="true">*</span>
                 </label>
                 <textarea
-                  id="help-msg"
-                  value={form.message}
-                  onChange={ch('message')}
-                  rows={5}
+                  id="help-msg" value={form.message} onChange={ch('message')} rows={5}
+                  className="w-full rounded-lg px-3.5 py-3 text-[14px] text-[#1a1a1a] bg-white outline-none resize-y transition-all"
                   style={{
-                    fontFamily: 'system-ui,sans-serif', fontSize: 14, color: '#1a1a1a',
-                    background: '#fff', border: `1px solid ${errors.message ? '#dc2626' : '#ddd8d0'}`,
-                    borderRadius: 8, padding: '12px 14px', outline: 'none',
-                    width: '100%', boxSizing: 'border-box', resize: 'vertical',
-                    transition: 'border-color 0.15s',
+                    fontFamily: 'system-ui',
+                    border: `1px solid ${errors.message ? '#dc2626' : '#ddd8d0'}`,
                   }}
                   onFocus={e => { e.target.style.borderColor = ORANGE; e.target.style.boxShadow = '0 0 0 2px rgba(201,87,58,0.12)'; }}
                   onBlur={e  => { e.target.style.borderColor = errors.message ? '#dc2626' : '#ddd8d0'; e.target.style.boxShadow = 'none'; }}
                 />
-                {errors.message && <p role="alert" style={{ fontSize: 11, color: '#dc2626', margin: 0, fontFamily: 'system-ui,sans-serif' }}>{errors.message}</p>}
-                <p style={{ fontFamily: 'system-ui,sans-serif', fontSize: 12, color: '#aaa', margin: 0 }}>
+                {errors.message && <p role="alert" className="text-[11px] text-red-600 m-0" style={{ fontFamily: 'system-ui' }}>{errors.message}</p>}
+                <p className="text-[12px] text-[#aaa] m-0" style={{ fontFamily: 'system-ui' }}>
                   Please do not include payment card details or verification codes.
                 </p>
               </div>
@@ -230,23 +215,23 @@ export default function HelpPage() {
               {/* Submit */}
               <button
                 type="submit" disabled={sending}
-                style={{ background: sending ? '#d4856e' : ORANGE, color: '#fff', fontFamily: 'system-ui,sans-serif', fontSize: 14, fontWeight: 600, border: 'none', borderRadius: 999, padding: '14px 28px', cursor: sending ? 'not-allowed' : 'pointer', width: '100%', transition: 'background 0.15s' }}
+                className="w-full rounded-full py-3.5 text-[14px] font-semibold text-white border-none cursor-pointer transition-colors"
+                style={{ fontFamily: 'system-ui', background: sending ? '#d4856e' : ORANGE }}
                 onMouseEnter={e => { if (!sending) e.currentTarget.style.background = '#b84d32'; }}
-                onMouseLeave={e => { if (!sending) e.currentTarget.style.background = ORANGE; }}
+                onMouseLeave={e => { if (!sending) e.currentTarget.style.background = sending ? '#d4856e' : ORANGE; }}
               >
                 {sending ? 'Sending…' : 'Send message'}
               </button>
 
-              {/* Success */}
               {sent && (
-                <div role="status" aria-live="polite" style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '12px 16px', fontFamily: 'system-ui,sans-serif', fontSize: 13, color: '#166534' }}>
-                  <span style={{ fontSize: 16 }}>✓</span>
-                  <span>Message received — Illustrative submitted-message feedback. Nothing has been sent from this static form.</span>
+                <div role="status" aria-live="polite" className="flex items-start gap-2.5 bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-[13px] text-green-800" style={{ fontFamily: 'system-ui' }}>
+                  <span>✓</span>
+                  <span>Message received — Illustrative submitted-message feedback.</span>
                 </div>
               )}
 
-              <p style={{ fontFamily: 'system-ui,sans-serif', fontSize: 12, color: '#aaa', margin: 0 }}>
-                Your supplied email is the contact detail for this question. No brand email address or phone number is assumed.
+              <p className="text-[12px] text-[#aaa] m-0" style={{ fontFamily: 'system-ui' }}>
+                Your supplied email is the contact detail for this question.
               </p>
             </form>
           </div>

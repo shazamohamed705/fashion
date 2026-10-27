@@ -185,12 +185,54 @@ export default function OurStoryPage() {
   return (
     <div style={{ background: '#FAF6EF', minHeight: '100vh' }}>
 
+      {/* Mobile-only overrides — desktop untouched */}
+      <style>{`
+        @media (max-width: 767px) {
+          .os-sec1 { flex-direction: row !important; padding: 16px 16px !important; align-items: center !important; gap: 12px !important; }
+          .os-sec1-text { flex: 1 1 0 !important; max-width: 55% !important; min-width: 0 !important; }
+          .os-sec1-text h1 { font-size: clamp(20px,6vw,30px) !important; margin-bottom: 8px !important; }
+          .os-sec1-text p { font-size: 12px !important; }
+          .os-sec1-circle { width: min(40vw, 160px) !important; height: min(40vw, 160px) !important; flex-shrink: 0 !important; }
+
+          .os-sec2 { min-height: 420px !important; }
+          .os-sec2-overlay { background: linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.05) 100%) !important; }
+          .os-sec2-card { position: absolute !important; bottom: 0 !important; left: 0 !important; top: auto !important; margin: 0 !important; width: 100% !important; padding: 20px !important; background: transparent !important; }
+          .os-sec2-card h2 { color: #fff !important; font-size: clamp(22px,6vw,32px) !important; }
+          .os-sec2-card p  { color: rgba(255,255,255,0.82) !important; font-size: 13px !important; }
+          .os-sec2-card .os-stat p:first-child { color: #ffb49a !important; }
+          .os-sec2-card .os-stat p:last-child  { color: #fff !important; font-size: 18px !important; }
+
+          .os-sec3 { flex-direction: column !important; padding: 40px 20px !important; gap: 20px !important; }
+          .os-sec3-title { flex: unset !important; max-width: 100% !important; }
+
+          .os-sec4 { padding: 32px 20px !important; }
+          .os-sec4-inner { flex-direction: column !important; }
+          .os-sec4-film { flex: unset !important; max-width: 100% !important; width: 100% !important; }
+          .os-sec4-text { flex: unset !important; width: 100% !important; }
+        }
+
+        /* Surface Pro / tablet — force row and tighter sizes */
+        @media (min-width: 768px) and (max-width: 1100px) {
+          .os-sec1 { flex-wrap: nowrap !important; padding: 24px 32px !important; gap: 24px !important; align-items: center !important; }
+          .os-sec1-text { flex: 1 1 0 !important; min-width: 0 !important; max-width: 55% !important; }
+          .os-sec1-text h1 { font-size: clamp(28px,3.8vw,46px) !important; }
+          .os-sec1-circle { width: clamp(200px,36vw,320px) !important; height: clamp(200px,36vw,320px) !important; flex-shrink: 0 !important; }
+        }
+      `}</style>
+
       {/* ── Section 1: Hero ── */}
-      <section style={{
+      <section className="os-sec1" style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         gap: '32px', padding: 'clamp(16px,2vw,28px) clamp(40px,5%,80px)', flexWrap: 'wrap',
       }}>
-        <div style={{ flex: '1 1 420px', maxWidth: '520px' }}>
+        {/* Mobile gradient overlay — hidden on desktop */}
+        <div className="os-sec1-overlay" style={{
+          display: 'none',
+          position: 'absolute', inset: 0, zIndex: 1,
+          background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.05) 100%)',
+          pointerEvents: 'none',
+        }} />
+        <div className="os-sec1-text" style={{ flex: '1 1 420px', maxWidth: '520px', position: 'relative', zIndex: 2 }}>
           <h1 style={{ fontFamily: 'var(--font-story)', fontSize: 'clamp(42px,5.5vw,74px)', fontWeight: 400, lineHeight: 1.12, color: '#1a1a1a', margin: '0 0 clamp(16px,2vw,26px)', letterSpacing: '-0.01em' }}>
             Made from<br />threads.<br />Held by people.
           </h1>
@@ -199,7 +241,7 @@ export default function OurStoryPage() {
           </p>
         </div>
 
-        <div style={{
+        <div className="os-sec1-circle" style={{
           flex: '0 0 auto',
           width: 'clamp(280px,46vw,540px)', height: 'clamp(280px,46vw,540px)',
           borderRadius: outerRadius, background: '#ffffff',
@@ -213,11 +255,11 @@ export default function OurStoryPage() {
       </section>
 
       {/* ── Section 2: Clothes for every body ── */}
-      <section style={{ position: 'relative', width: '100%', overflow: 'hidden', minHeight: 'clamp(260px,34vw,420px)', display: 'flex', alignItems: 'center' }}>
+      <section className="os-sec2" style={{ position: 'relative', width: '100%', overflow: 'hidden', minHeight: 'clamp(260px,34vw,420px)', display: 'flex', alignItems: 'center' }}>
         <img src="/07c56b2eba15cf1613a8497efc9b21e9a6e9f7be.png" alt="Linen texture"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 65%', display: 'block' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(270deg,#D8CDBB 41.49%,rgba(170,162,147,0.88) 53.89%,rgba(0,0,0,0) 80%)', zIndex: 1 }} />
-        <div style={{ position: 'relative', zIndex: 2, marginLeft: 'auto', marginRight: 'clamp(40px,12%,160px)', width: 'clamp(280px,48%,580px)', padding: 'clamp(28px,3.5vw,52px) clamp(24px,4%,56px)', display: 'flex', flexDirection: 'column', gap: 0 }}>
+        <div className="os-sec2-overlay" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(270deg,#D8CDBB 41.49%,rgba(170,162,147,0.88) 53.89%,rgba(0,0,0,0) 80%)', zIndex: 1 }} />
+        <div className="os-sec2-card" style={{ position: 'relative', zIndex: 2, marginLeft: 'auto', marginRight: 'clamp(40px,12%,160px)', width: 'clamp(280px,48%,580px)', padding: 'clamp(28px,3.5vw,52px) clamp(24px,4%,56px)', display: 'flex', flexDirection: 'column', gap: 0 }}>
           <h2 style={{ fontFamily: 'var(--font-story)', fontSize: 'clamp(24px,3.2vw,48px)', fontWeight: 400, lineHeight: '108.33%', letterSpacing: '-1.61px', color: '#1a1a1a', margin: '0 0 clamp(14px,1.6vw,24px)' }}>
             Clothes for every<br />body and every<br />season.
           </h2>
@@ -226,7 +268,7 @@ export default function OurStoryPage() {
           </p>
           <div style={{ display: 'flex', gap: 'clamp(24px,4vw,56px)', flexWrap: 'nowrap' }}>
             {[['⟷','SIZES XS TO 4XL','XS–4XL'],['◎','100% ORGANIC COTTON','100%'],['↩','EASY 14-DAY RETURNS','14 days']].map(([icon,label,val]) => (
-              <div key={label} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div key={label} className="os-stat" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <p style={{ fontFamily: 'system-ui', fontSize: '9px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#C8502A', margin: 0, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
                   <span style={{ fontSize: '11px' }}>{icon}</span>{label}
                 </p>
@@ -238,8 +280,8 @@ export default function OurStoryPage() {
       </section>
 
       {/* ── Section 3: Over, under, together ── */}
-      <section ref={sec3Ref} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(32px,6vw,96px)', padding: 'clamp(48px,6vw,88px) clamp(40px,6%,96px)', flexWrap: 'wrap', background: '#ffff' }}>
-        <div className="s3-anim" style={{ flex: '1 1 360px', maxWidth: '480px' }}>
+      <section ref={sec3Ref} className="os-sec3" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(32px,6vw,96px)', padding: 'clamp(48px,6vw,88px) clamp(40px,6%,96px)', flexWrap: 'wrap', background: '#ffff' }}>
+        <div className="s3-anim os-sec3-title" style={{ flex: '1 1 360px', maxWidth: '480px' }}>
           <h2 style={{ fontFamily: 'var(--font-story)', fontSize: 'clamp(36px,4.8vw,68px)', fontWeight: 400, lineHeight: 1.12, color: '#1a1a1a', margin: 0, letterSpacing: '-0.01em' }}>
             Over, under,<br />together.
           </h2>
@@ -256,15 +298,15 @@ export default function OurStoryPage() {
       </section>
 
       {/* ── Section 4: Warm. Honest. Quietly confident. ── */}
-      <section ref={sec4Ref} style={{ background: '#FAF6EF', padding: 'clamp(24px,3vw,48px) clamp(24px,6%,88px)' }}>
+      <section ref={sec4Ref} className="os-sec4" style={{ background: '#FAF6EF', padding: 'clamp(24px,3vw,48px) clamp(24px,6%,88px)' }}>
         <h2 className="s4-anim" style={{ fontFamily: 'var(--font-story)', fontSize: 'clamp(24px,3vw,42px)', fontWeight: 400, color: '#C8502A', margin: '0 0 clamp(24px,3vw,40px)', letterSpacing: '-0.01em', lineHeight: 1.15 }}>
           Warm. Honest. Quietly confident.
         </h2>
-        <div style={{ display: 'flex', gap: 'clamp(24px,4vw,64px)', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-          <div className="s4-anim" style={{ flex: '1 1 300px', maxWidth: 'clamp(300px,48%,760px)', borderRadius: '16px', overflow: 'hidden', flexShrink: 0, aspectRatio: '760/457' }}>
+        <div className="os-sec4-inner" style={{ display: 'flex', gap: 'clamp(24px,4vw,64px)', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          <div className="s4-anim os-sec4-film" style={{ flex: '1 1 300px', maxWidth: 'clamp(300px,48%,760px)', borderRadius: '16px', overflow: 'hidden', flexShrink: 0, aspectRatio: '760/457' }}>
             <FilmStripSlider borderRadius="16px" />
           </div>
-          <div style={{ flex: '1 1 280px', display: 'flex', flexDirection: 'column', gap: 'clamp(16px,2vw,28px)', paddingTop: '8px' }}>
+          <div className="os-sec4-text" style={{ flex: '1 1 280px', display: 'flex', flexDirection: 'column', gap: 'clamp(16px,2vw,28px)', paddingTop: '8px' }}>
             <h3 className="s4-anim" style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(28px,3.2vw,48px)', fontWeight: 400, color: '#1a1a1a', margin: 0, lineHeight: 1.1, letterSpacing: 0 }}>
               These three principles shape every piece we make.
             </h3>
