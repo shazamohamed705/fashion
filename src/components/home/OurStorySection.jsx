@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { BASE_URL } from '../../api/config';
 
 const features = [
   {
@@ -18,8 +19,48 @@ const features = [
 
 const featClasses = ['story-feat-1', 'story-feat-2', 'story-feat-3'];
 
+/* ── static fallback ── */
+const FALLBACK = {
+  title: 'Clothes are made of threads.',
+  subtitle: 'So are people.',
+  body: 'Every garment is threads crossing over and under each other. That is our idea of community too: different people, held together.',
+  slug: null,
+};
+
+/** Split a blog title into two lines at the last full stop or comma */
+function splitTitle(raw = '') {
+  const dotIdx = raw.lastIndexOf('.');
+  if (dotIdx > 0 && dotIdx < raw.length - 1) {
+    return [raw.slice(0, dotIdx + 1).trim(), raw.slice(dotIdx + 1).trim()];
+  }
+  const mid = Math.ceil(raw.length / 2);
+  const spaceIdx = raw.indexOf(' ', mid);
+  if (spaceIdx !== -1) return [raw.slice(0, spaceIdx).trim(), raw.slice(spaceIdx).trim()];
+  return [raw, ''];
+}
+
+async function fetchLatestBlog() {
+  const res = await fetch(`${BASE_URL}/api/blogs`);
+  if (!res.ok) throw new Error('blogs fetch failed');
+  const json = await res.json();
+  const post = json?.data?.posts?.items?.[0] ?? null;
+  if (!post) return FALLBACK;
+  const [title, subtitle] = splitTitle(post.title);
+  return { title, subtitle, body: FALLBACK.body, slug: post.slug };
+}
+
 export default function OurStorySection() {
   const sectionRef = useRef(null);
+  const [story, setStory] = useState(FALLBACK);
+
+  /* ── fetch latest blog post for title/subtitle ── */
+  useEffect(() => {
+    let active = true;
+    fetchLatestBlog()
+      .then((data) => { if (active) setStory(data); })
+      .catch(() => { /* keep fallback */ });
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -58,16 +99,15 @@ export default function OurStorySection() {
           {/* Text overlay */}
           <div className="story-mobile-content">
             <h2 className="story-title-1 story-h2-dark">
-              Clothes are made of threads.
+              {story.title}
             </h2>
             <h2 className="story-title-2 story-h2-red">
-              So are people.
+              {story.subtitle}
             </h2>
             <p className="story-body story-body-text story-hide-mobile">
-              Every garment is threads crossing over and under each other.
-              That is our idea of community too: different people, held together.
+              {story.body}
             </p>
-            <Link to="/hero" className="story-link story-read-link story-hide-mobile">
+            <Link to={story.slug ? `/blog/${story.slug}` : '/hero'} className="story-link story-read-link story-hide-mobile">
               Read our story
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" strokeWidth="2"
@@ -111,7 +151,7 @@ export default function OurStorySection() {
                 fontWeight: 400, lineHeight: 1.12, color: '#2b2b2b', margin: 0,
               }}
             >
-              Clothes are made of threads.
+              {story.title}
             </h2>
             <h2
               className="story-title-2"
@@ -122,7 +162,7 @@ export default function OurStorySection() {
                 margin: '0 0 clamp(10px, 1.4vw, 20px)',
               }}
             >
-              So are people.
+              {story.subtitle}
             </h2>
             <p
               className="story-body"
@@ -131,11 +171,10 @@ export default function OurStorySection() {
                 color: '#333', margin: '0 0 clamp(8px, 1.2vw, 16px)',
               }}
             >
-              Every garment is threads crossing over and under each other.
-              That is our idea of community too: different people, held together.
+              {story.body}
             </p>
             <Link
-              to="/hero"
+              to={story.slug ? `/blog/${story.slug}` : '/hero'}
               className="story-link"
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 5,

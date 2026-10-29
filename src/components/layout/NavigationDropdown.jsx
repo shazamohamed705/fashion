@@ -1,148 +1,20 @@
 import { NavLink } from 'react-router-dom';
 
-/* ─── Dropdown data ──────────────────────────────────────────────────────── */
-export const dropdownData = {
-  women: {
-    columns: [
-      {
-        heading: 'CLOTHING',
-        links: [
-          { label: 'All women',         path: '/shop?cat=Women' },
-          { label: 'Tops & T-shirts',   path: '/shop?cat=Women' },
-          { label: 'Shirts & Blouses',  path: '/shop?cat=Women' },
-          { label: 'Dresses',           path: '/shop?cat=Women' },
-          { label: 'Skirts',            path: '/shop?cat=Women' },
-          { label: 'Trousers & Shorts', path: '/shop?cat=Women' },
-          { label: 'Knitwear',          path: '/shop?cat=Women' },
-          { label: 'Outerwear',         path: '/shop?cat=Women' },
-        ],
-      },
-      {
-        heading: 'BY FABRIC',
-        links: [
-          { label: 'Cotton',         path: '/shop' },
-          { label: 'Linen',          path: '/shop' },
-          { label: 'Organic cotton', path: '/shop' },
-          { label: 'Knit',           path: '/shop' },
-        ],
-      },
-      {
-        heading: 'FEATURED',
-        links: [
-          { label: 'New arrivals',            path: '/new-arrivals', highlight: true },
-          { label: 'Everyday basics',         path: '/shop' },
-          { label: 'The soft structure edit', path: '/shop' },
-          { label: 'The linen edit',          path: '/shop' },
-        ],
-      },
-    ],
-  },
-
-  men: {
-    columns: [
-      {
-        heading: 'CLOTHING',
-        links: [
-          { label: 'All men',          path: '/shop?cat=Men' },
-          { label: 'T-shirts & Polos', path: '/shop?cat=Men' },
-          { label: 'Shirts',           path: '/shop?cat=Men' },
-          { label: 'Trousers',         path: '/shop?cat=Men' },
-          { label: 'Knitwear',         path: '/shop?cat=Men' },
-          { label: 'Outerwear',        path: '/shop?cat=Men' },
-        ],
-      },
-      {
-        heading: 'BY FABRIC',
-        links: [
-          { label: 'Cotton', path: '/shop' },
-          { label: 'Linen',  path: '/shop' },
-          { label: 'Merino', path: '/shop' },
-        ],
-      },
-      {
-        heading: 'FEATURED',
-        links: [
-          { label: 'New arrivals',       path: '/new-arrivals', highlight: true },
-          { label: 'The linen edit',     path: '/shop' },
-          { label: 'Weekend essentials', path: '/shop' },
-        ],
-      },
-    ],
-  },
-
-  kids: {
-    columns: [
-      {
-        heading: 'CLOTHING',
-        links: [
-          { label: 'All kids',  path: '/shop?cat=Kids' },
-          { label: 'Tops',      path: '/shop?cat=Kids' },
-          { label: 'Bottoms',   path: '/shop?cat=Kids' },
-          { label: 'Outerwear', path: '/shop?cat=Kids' },
-        ],
-      },
-      {
-        heading: 'BY AGE',
-        links: [
-          { label: '0–2 years',  path: '/shop?cat=Kids' },
-          { label: '3–8 years',  path: '/shop?cat=Kids' },
-          { label: '9–14 years', path: '/shop?cat=Kids' },
-        ],
-      },
-      {
-        heading: 'FEATURED',
-        links: [
-          { label: 'New arrivals',   path: '/new-arrivals', highlight: true },
-          { label: 'Back to school', path: '/shop' },
-        ],
-      },
-    ],
-  },
-
-  'shop all': {
-    columns: [
-      {
-        heading: 'CLOTHING',
-        links: [
-          { label: 'All women', path: '/shop?cat=Women' },
-          { label: 'All men',   path: '/shop?cat=Men'   },
-          { label: 'All kids',  path: '/shop?cat=Kids'  },
-        ],
-      },
-      {
-        heading: 'BY FABRIC',
-        links: [
-          { label: 'Cotton',         path: '/shop' },
-          { label: 'Linen',          path: '/shop' },
-          { label: 'Organic cotton', path: '/shop' },
-          { label: 'Knit',           path: '/shop' },
-        ],
-      },
-      {
-        heading: 'FEATURED',
-        links: [
-          { label: 'New arrivals',            path: '/new-arrivals', highlight: true },
-          { label: 'Everyday basics',         path: '/shop' },
-          { label: 'The soft structure edit', path: '/shop' },
-          { label: 'The linen edit',          path: '/shop' },
-        ],
-      },
-    ],
-  },
-};
-
 /* ═══════════════════════════════════════════════════════════════════════════
-   NavigationDropdown — pure Tailwind
+   NavigationDropdown
+   Props:
+     menuKey  — the nav label being hovered (e.g. "Women", "men", "Kids")
+     megaData — map built by Navbar: { [labelLower]: { columns: [...] } }
+     onClose  — callback to close the dropdown
 ═══════════════════════════════════════════════════════════════════════════ */
-export default function NavigationDropdown({ menuKey, onClose }) {
-  const data = dropdownData[menuKey?.toLowerCase()];
+export default function NavigationDropdown({ menuKey, megaData = {}, onClose }) {
+  const data = megaData[menuKey?.toLowerCase()];
   if (!data) return null;
 
   const colCount = data.columns.length;
 
   return (
     <>
-      {/* Entrance keyframe — tiny, injected once */}
       <style>{`
         @keyframes dropdown-in {
           from { opacity: 0; transform: translateY(-6px); }
@@ -164,12 +36,9 @@ export default function NavigationDropdown({ menuKey, onClose }) {
       >
         {data.columns.map((col) => (
           <div key={col.heading}>
-            {/* Column heading */}
             <p className="text-[10px] font-bold tracking-[0.12em] uppercase text-[#aaa] mb-3.5 m-0">
               {col.heading}
             </p>
-
-            {/* Links */}
             <ul className="list-none m-0 p-0 flex flex-col gap-2.5">
               {col.links.map((link) => (
                 <li key={link.label}>

@@ -1,6 +1,9 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { fetchCategories } from '../../api/categories';
 
-const categories = [
+/* ─── Static fallback (used until the API responds or on error) ─── */
+const FALLBACK_CATEGORIES = [
   {
     name: 'Women',
     path: '/categories',
@@ -45,9 +48,62 @@ const categories = [
   },
 ];
 
+/* ─── Slugs that have a dedicated page ─── */
+const SLUG_TO_PATH = {
+  'new-in': '/new-arrivals',
+  'everyday-basics': '/featured-products',
+};
+
+/* ─── Build path from a category object ─── */
+function catPath(cat) {
+  return SLUG_TO_PATH[cat.slug] ?? `/categories/${cat.id}`;
+}
+
+/* ─── Background colours per slug (keep the original palette look) ─── */
+const BG_BY_SLUG = {
+  women: '#F0EAE0',
+  men: '#E8E4DC',
+  kids: '#F5EDDF',
+  'new-in': '#E5E8E0',
+  'everyday-basics': '#E2E5EC',
+};
+
+const BG_PALETTE = ['#EDE6DF', '#E0E5EC', '#F0EAE0', '#E8E4DC', '#F5EDDF', '#E5E8E0', '#E2E5EC'];
+
+/* ─── Map an API category to a carousel card ─── */
+function toCard(cat, idx) {
+  return {
+    name: cat.name,
+    path: catPath(cat),
+    img: cat.image,
+    bg: cat.bg ?? BG_BY_SLUG[cat.slug] ?? BG_PALETTE[idx % BG_PALETTE.length],
+  };
+}
+
+/* ─── Keep only top-level categories that have NO children ─── */
+function flattenCategories(cats) {
+  return cats.filter(
+    (cat) => cat.parent_id === null && (!cat.children || cat.children.length === 0)
+  );
+}
+
 export default function CategoriesSection() {
+  const [fetched, setFetched] = useState([]);
+
+  /* ── Fetch categories from the API ── */
+  useEffect(() => {
+    let active = true;
+    fetchCategories()
+      .then((cats) => {
+        if (active) setFetched(flattenCategories(cats).map(toCard));
+      })
+      .catch(() => { if (active) setFetched([]); });
+    return () => { active = false; };
+  }, []);
+
   /* duplicate list for seamless infinite loop */
-  const items = [...categories, ...categories];
+  const list = fetched.length ? fetched : FALLBACK_CATEGORIES;
+  const items = [...list, ...list];
 
   return (
     <section style={{ background: '#ffffff', padding: '56px 0 64px', overflow: 'hidden' }}>

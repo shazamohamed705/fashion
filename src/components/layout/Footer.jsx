@@ -1,17 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { fetchCategories } from '../../api/categories';
 
-/* ── Nav columns data ── */
-const columns = [
-  {
-    heading: 'Shop',
-    links: [
-      { label: 'Women',        path: '/categories' },
-      { label: 'Men',          path: '/categories' },
-      { label: 'Kids',         path: '/categories' },
-      { label: 'New arrivals', path: '/new-arrivals' },
-    ],
-  },
+/* ── Category slug → route (slugs with a dedicated page) ── */
+const SLUG_TO_PATH = {
+  'new-in': '/new-arrivals',
+  'everyday-basics': '/featured-products',
+};
+
+/* ── Build path from a category object ── */
+function catPath(c) {
+  return SLUG_TO_PATH[c.slug] ?? `/categories/${c.id}`;
+}
+
+/* ── Static fallback so 3 shop links are always visible ── */
+const FALLBACK_SHOP_LINKS = [
+  { label: 'Women', path: '/categories' },
+  { label: 'Men',   path: '/categories' },
+  { label: 'Kids',  path: '/categories' },
+];
+
+const NEW_ARRIVALS_LINK = { label: 'New arrivals', path: '/new-arrivals' };
+
+/* ── Nav columns data (Help & Brand stay static; Shop comes from the API) ── */
+const baseColumns = [
   {
     heading: 'Help',
     links: [
@@ -77,6 +89,32 @@ function AccordionCol({ col }) {
 
 /* ── Footer ── */
 export default function Footer() {
+  const [shopLinks, setShopLinks] = useState(FALLBACK_SHOP_LINKS);
+
+  /* ── First 3 top-level categories (same as Navbar) ── */
+  useEffect(() => {
+    let active = true;
+    fetchCategories()
+      .then((cats) => {
+        if (!active) return;
+        const three = cats
+          .filter((c) => c.parent_id === null)
+          .slice(0, 3)
+          .map((c) => ({
+            label: c.name,
+            path: catPath(c),
+          }));
+        if (three.length) setShopLinks(three);
+      })
+      .catch(() => { /* keep static fallback */ });
+    return () => { active = false; };
+  }, []);
+
+  const columns = [
+    { heading: 'Shop', links: [...shopLinks, NEW_ARRIVALS_LINK] },
+    ...baseColumns,
+  ];
+
   return (
     <footer className="bg-[#1a1a18] text-white">
 

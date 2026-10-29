@@ -3,6 +3,7 @@ import Layout from '../components/layout/Layout';
 import Home from '../pages/Home';
 import HeroPage from '../pages/HeroPage';
 import CategoriesPage from '../pages/CategoriesPage';
+import CategoryPage from '../pages/CategoryPage';
 import FeaturedProductsPage from '../pages/FeaturedProductsPage';
 import NewArrivalsPage from '../pages/NewArrivalsPage';
 import OffersPage from '../pages/OffersPage';
@@ -30,6 +31,7 @@ export default function AppRoutes() {
         <Route index element={<Home />} />
         <Route path="/hero" element={<HeroPage />} />
         <Route path="/categories" element={<CategoriesPage />} />
+        <Route path="/categories/:id" element={<CategoryPage />} />
         <Route path="/featured-products" element={<FeaturedProductsPage />} />
         <Route path="/new-arrivals" element={<NewArrivalsPage />} />
         <Route path="/offers" element={<OffersPage />} />

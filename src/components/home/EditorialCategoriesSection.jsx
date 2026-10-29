@@ -1,33 +1,89 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { fetchCategories } from '../../api/categories';
 
-const categories = [
+/* ─── Slug → editorial copy ─────────────────────────────────────────────── */
+const EDITORIAL_BY_SLUG = {
+  'everyday-basics': {
+    eyebrow: 'EFFORTLESS EVERYDAY',
+    heading: 'The basics, perfected.',
+    linkLabel: 'Shop everyday basics',
+  },
+  'new-in': {
+    eyebrow: 'FRESH DROPS',
+    heading: 'New season, new finds.',
+    linkLabel: 'Shop new in',
+  },
+};
+
+/* ─── Fallback (used until API responds) ────────────────────────────────── */
+const FALLBACK = [
   {
-    eyebrow: 'THE SOFT STRUCTURE EDIT',
-    heading: 'For her, for every day.',
-    linkLabel: 'Shop women',
-    path: '/categories',
-    img: 'https://images.unsplash.com/photo-1581044777550-4cfa60707c03?w=600&h=780&fit=crop&crop=top',
-    bg: '#F8F4EF',
+    eyebrow: 'EFFORTLESS EVERYDAY',
+    heading: 'The basics, perfected.',
+    linkLabel: 'Shop everyday basics',
+    path: '/featured-products',
+    img: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&h=780&fit=crop&crop=top',
   },
   {
-    eyebrow: 'QUIETLY CONSIDERED',
-    heading: 'Ease, in every layer.',
-    linkLabel: 'Shop men',
-    path: '/categories',
-    img: 'https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=600&h=780&fit=crop&crop=top',
-    bg: '#F8F4EF',
-  },
-  {
-    eyebrow: 'MADE TO MOVE',
-    heading: 'Small clothes. Big days.',
-    linkLabel: 'Shop kids',
-    path: '/categories',
-    img: 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?w=600&h=780&fit=crop&crop=top',
-    bg: '#F8F4EF',
+    eyebrow: 'FRESH DROPS',
+    heading: 'New season, new finds.',
+    linkLabel: 'Shop new in',
+    path: '/new-arrivals',
+    img: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&h=780&fit=crop&crop=top',
   },
 ];
 
+/* ─── Slug → dedicated route ─────────────────────────────────────────────── */
+const SLUG_TO_PATH = {
+  'new-in': '/new-arrivals',
+  'everyday-basics': '/featured-products',
+};
+
+/* ─── Build path from a category object ─── */
+function catPath(cat) {
+  return SLUG_TO_PATH[cat.slug] ?? `/categories/${cat.id}`;
+}
+
+// The Navbar always shows the first 3 top-level categories — exclude them here
+const NAVBAR_COUNT = 3;
+
 export default function EditorialCategoriesSection() {
+  const [cards, setCards] = useState(FALLBACK);
+
+  useEffect(() => {
+    let active = true;
+    fetchCategories()
+      .then((cats) => {
+        if (!active) return;
+
+        const topLevel = cats.filter((c) => c.parent_id === null);
+
+        // Everything AFTER the first 3 (i.e. not in the Navbar)
+        const rest = topLevel.slice(NAVBAR_COUNT);
+
+        if (!rest.length) return;
+
+        const built = rest.map((cat) => {
+          const editorial = EDITORIAL_BY_SLUG[cat.slug] ?? {
+            eyebrow: cat.name.toUpperCase(),
+            heading: cat.name,
+            linkLabel: `Shop ${cat.name.toLowerCase()}`,
+          };
+          return {
+            ...editorial,
+            path: catPath(cat),
+            img: cat.image,
+          };
+        });
+
+        setCards(built);
+      })
+      .catch(() => {/* keep fallback */});
+
+    return () => { active = false; };
+  }, []);
+
   return (
     <section
       className="w-full bg-[#F8F4EF]"
@@ -37,7 +93,7 @@ export default function EditorialCategoriesSection() {
         className="grid grid-cols-1 sm:grid-cols-3 justify-items-center"
         style={{ gap: '16px' }}
       >
-        {categories.map((cat) => (
+        {cards.map((cat) => (
           <div key={cat.eyebrow} className="flex flex-col w-full" style={{ maxWidth: '463px', gap: '16px' }}>
 
             {/* Portrait image — 463×608 ratio */}
@@ -46,7 +102,7 @@ export default function EditorialCategoriesSection() {
               style={{
                 aspectRatio: '463 / 608',
                 borderRadius: '6px',
-                background: cat.bg,
+                background: '#E8E4DC',
               }}
             >
               <img

@@ -4,6 +4,8 @@ import { Search, User, ShoppingBag, Menu, X } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import NavigationDropdown from './NavigationDropdown';
 import SignInModal from '../auth/SignInModal';
+import { fetchCategories, fetchCategoryById } from '../../api/categories';
+import { fetchSubcollections } from '../../api/subcollections';
 
 /* ─── Announcement messages ──────────────────────────────────────────────── */
 const announcements = [
@@ -13,15 +15,112 @@ const announcements = [
   'Cash on delivery available',
 ];
 
-/* ─── Nav links ──────────────────────────────────────────────────────────── */
-const navLinks = [
-  { label: 'Women',     path: '/shop',         hasMega: true  },
-  { label: 'Men',       path: '/shop',         hasMega: true  },
-  { label: 'Kids',      path: '/shop',         hasMega: true  },
-  { label: 'Shop all',  path: '/shop',         hasMega: true  },
-  { label: 'Our story', path: '/our-story',    hasMega: false },
-  { label: 'Contact',   path: '/help',         hasMega: false },
+/* ─── Category slug → route (slugs with a dedicated page) ───────────────── */
+const SLUG_TO_PATH = {
+  'new-in': '/new-arrivals',
+  'everyday-basics': '/featured-products',
+};
+
+/* ─── First 3 categories come from the API; fallback keeps 3 visible ────── */
+const FALLBACK_CAT_LINKS = [
+  { label: 'Women', path: '/shop', hasMega: true },
+  { label: 'Men',   path: '/shop', hasMega: true },
+  { label: 'Kids',  path: '/shop', hasMega: true },
 ];
+
+/* ─── Static nav links (kept as-is) ──────────────────────────────────────── */
+const STATIC_NAV_LINKS = [
+  { label: 'Shop all',  path: '/shop',      hasMega: true  },
+  { label: 'Our story', path: '/our-story', hasMega: false },
+  { label: 'Contact',   path: '/help',      hasMega: false },
+];
+
+/* ─── Static FEATURED column per category slug ───────────────────────────── */
+const FEATURED_BY_SLUG = {
+  women: [
+    { label: 'New arrivals',    path: '/new-arrivals', highlight: true },
+    { label: 'Everyday basics', path: '/shop' },
+    { label: 'The linen edit',  path: '/shop' },
+  ],
+  men: [
+    { label: 'New arrivals',       path: '/new-arrivals', highlight: true },
+    { label: 'The linen edit',     path: '/shop' },
+    { label: 'Weekend essentials', path: '/shop' },
+  ],
+  kids: [
+    { label: 'New arrivals',   path: '/new-arrivals', highlight: true },
+    { label: 'Back to school', path: '/shop' },
+  ],
+  'shop all': [
+    { label: 'New arrivals',    path: '/new-arrivals', highlight: true },
+    { label: 'Everyday basics', path: '/shop' },
+    { label: 'The linen edit',  path: '/shop' },
+  ],
+};
+
+/**
+ * Builds the megaData map consumed by NavigationDropdown.
+ *
+ * For each top-level category:
+ *   - Each child becomes a COLUMN (child.name = heading)
+ *   - Partners whose category.id === child.id are the links inside that column
+ *   - FEATURED column is always appended (static)
+ *
+ * Shape: { [catNameLower]: { columns: [ {heading, links}, ... ] } }
+ */
+function buildMegaData(categories, partners) {
+  const result = {};
+
+  categories.forEach((cat) => {
+    const key = cat.name.toLowerCase();
+    const columns = [];
+
+    // ── One column per child ──
+    (cat.children ?? []).forEach((child) => {
+      const links = partners
+        .filter((p) => p.category?.id === child.id)
+        .map((p) => ({
+          label: p.name,
+          // go to parent category page with child pre-selected
+          path: `/categories/${cat.id}?child=${child.id}`,
+        }));
+
+      // Always add the column even if empty (shows the heading)
+      columns.push({
+        heading: child.name,
+        // heading itself is also a link to the child tab
+        headingPath: `/categories/${cat.id}?child=${child.id}`,
+        links,
+      });
+    });
+
+    // ── FEATURED column (static) ──
+    const featured = FEATURED_BY_SLUG[cat.slug] ?? [];
+    if (featured.length) {
+      columns.push({ heading: 'FEATURED', links: featured });
+    }
+
+    if (columns.length) {
+      result[key] = { columns };
+    }
+  });
+
+  // ── Shop all: all partners grouped by their top-level category ──
+  const allClothing = partners.map((p) => ({
+    label: p.name,
+    path: p.category?.parent_id
+      ? `/categories/${p.category.parent_id}?child=${p.category.id}`
+      : `/categories/${p.category?.id}`,
+  }));
+  result['shop all'] = {
+    columns: [
+      ...(allClothing.length ? [{ heading: 'ALL ITEMS', links: allClothing }] : []),
+      { heading: 'FEATURED', links: FEATURED_BY_SLUG['shop all'] ?? [] },
+    ],
+  };
+
+  return result;
+}
 
 /* ─── Dot separator ──────────────────────────────────────────────────────── */
 function Dot() {
@@ -52,12 +151,51 @@ export default function Navbar() {
   const [menuOpen,   setMenuOpen]   = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
   const [signInOpen, setSignInOpen] = useState(false);
+  const [catLinks,   setCatLinks]   = useState(FALLBACK_CAT_LINKS);
+  const [megaData,   setMegaData]   = useState({});
 
   const timeoutRef = useRef(null);
   const headerRef  = useRef(null);
 
   const navigate              = useNavigate();
   const { totalItems, cartIconRef } = useCart();
+
+  /* ── Fetch categories + subcollections, then build megaData ── */
+  useEffect(() => {
+    let active = true;
+    Promise.all([fetchCategories(), fetchSubcollections()])
+      .then(([cats, partners]) => {
+        if (!active) return;
+
+        // Top-level categories only
+        const topLevel = cats.filter((c) => c.parent_id === null);
+
+        // Build navbar links (first 3 top-level cats)
+        const links = topLevel.slice(0, 3).map((c) => ({
+          label: c.name,
+          path: SLUG_TO_PATH[c.slug] ?? `/categories/${c.id}`,
+          hasMega: true,
+        }));
+        if (links.length) setCatLinks(links);
+
+        // Fetch each top-level category individually to get full children list
+        Promise.all(topLevel.map((c) => fetchCategoryById(c.id)))
+          .then((results) => {
+            if (!active) return;
+            // fetchCategoryById now returns { category, products } — extract the category object
+            const validCats = results
+              .filter(Boolean)
+              .map((r) => r?.category ?? r);
+            const built = buildMegaData(validCats, partners);
+            setMegaData(built);
+          })
+          .catch((err) => console.error('[Navbar] category detail fetch error:', err));
+      })
+      .catch((err) => { console.error('[Navbar] fetch error:', err); });
+    return () => { active = false; };
+  }, []);
+
+  const navLinks = [...catLinks, ...STATIC_NAV_LINKS];
 
   /* ── Mega-menu hover helpers ── */
   const openMenu = useCallback((label) => {
@@ -255,7 +393,7 @@ export default function Navbar() {
               onMouseLeave={scheduleClose}
               className="relative z-[100]"
             >
-              <NavigationDropdown menuKey={activeMenu} onClose={closeMenu} />
+              <NavigationDropdown menuKey={activeMenu} megaData={megaData} onClose={closeMenu} />
             </div>
           );
         })()}
